@@ -149,6 +149,26 @@ A LGPD prevê hipóteses de conservação; não autoriza prometer apagar qualque
 
 As regras específicas do fornecedor de IA e o orçamento ficam na próxima seção. Não utilizar “30 dias” como prazo genérico para tudo.
 
+### Exemplo simples: áudio, cadastro e backup
+
+Se alguém envia um áudio pedindo horário, a aplicação pode processar o arquivo e removê-lo do armazenamento temporário assim que concluir. Não é necessário guardar o áudio original para manter a reserva. A limpeza também precisa funcionar quando a chamada falha, incluindo fila de erro, caches e uploads incompletos.
+
+Se a pessoa pede para excluir o cadastro:
+1. Verificar quem está solicitando e qual empresa/dado está envolvido.
+2. Bloquear imediatamente o uso não necessário e novos envios relacionados ao pedido validado.
+3. Executar uma tarefa durável que localiza e remove/anonimiza dados elegíveis do banco, arquivos, índices e caches; cancelar tarefas pendentes que poderiam recriá-los.
+4. Confirmar que cada armazenamento ativo foi tratado e registrar somente a evidência mínima do atendimento.
+5. Solicitar exclusão de recursos persistentes nos fornecedores quando o produto permitir; acompanhar falhas sem afirmar sucesso antecipado.
+6. Manter os backups protegidos até a expiração documentada, com registro mínimo de exclusão aplicado antes de liberar qualquer restauração.
+
+Meta técnica a medir: bloqueio imediato e limpeza dos dados ativos elegíveis em minutos para pedidos simples já validados. Não é prazo legal universal nem garantia antes de testes. Se algum registro precisar ser mantido por fundamento aplicável, restringir acesso e informar motivo/prazo.
+
+O pedido deve distinguir consumidor de uma loja, dono de conta e encerramento de uma empresa inteira. Não identificar registros só pelo nome, nem apagar informações de outras lojas por coincidência de telefone.
+
+Com retenção de backups mensais, não se pode prometer que todas as cópias desaparecem em 30 dias. Áudio/imagem temporários devem ficar fora dos backups persistentes. Se for necessário apagamento mais rápido de conteúdo que está em backups, redesenhar retenção e avaliar criptografia com chaves separadas e ciclo de eliminação verificável; não prometer que apenas apagar uma chave compartilhada resolve.
+
+Nosso sistema não controla cópias de mensagens no celular de quem as recebeu. A política precisa diferenciar nossos ambientes, fornecedores e aparelhos dos participantes.
+
 ## 10. IA: pagar pelo uso real e impedir desperdício
 
 A agenda, confirmação no site e cálculo de horários devem funcionar por código comum. IA entra para interpretar linguagem e ajudar a pessoa, sempre usando ferramentas que verificam autorização.
@@ -207,51 +227,62 @@ Portanto: apagar nossos dados aplicáveis sem esperar arbitrariamente 30 dias; t
 
 A alternativa mais simples para reduzir exposição é não enviar telefone, CPF, nome completo ou fotos quando bastam códigos internos, serviço e horário. Processamento totalmente local pode ser estudado, mas traz custo e responsabilidade; não será instalado na VPS pequena por suposição.
 
-## 11. WhatsApp sem CNPJ: decisão e limite real
+## 11. WhatsApp por loja, conectado à plataforma central
 
-Existem quatro coisas diferentes: verificar posse do número, cadastrar nome de exibição, verificar o negócio e obter selo/Meta Verified. Uma não garante todas as outras.
+**Atualização do requisito em 15/10/2026:** o objetivo passou a ser um canal próprio para a plataforma e um WhatsApp identificado com cada loja. O domínio temporário continua nexakeep.site; Nexus/Nexus Escape são referências de marca ainda não consolidadas.
 
-**Não foi confirmada uma solução oficial que garanta simultaneamente CPF, automação de produção, um único número e o nome de cada loja como remetente.** Não contratar um intermediário com essa promessa sem comprovação para o caso concreto.
+| Canal | Identidade pretendida | Função |
+|---|---|---|
+| Plataforma | Marca da plataforma | Vendas e suporte da plataforma |
+| Loja A | Marca da Loja A | Confirmações e funções contratadas dessa loja |
+| Loja B | Marca da Loja B | Confirmações e funções contratadas dessa loja |
 
-| Caminho | Situação neste projeto |
-|---|---|
-| WhatsApp Business app da própria loja | Alternativa inicial para atendimento humano e perfil comercial; não oferece sozinho webhook/backend para confirmação automática de agenda |
-| Um número central da Nexakeep | Identidade do remetente será a da plataforma; a mensagem identifica a loja. Elegibilidade oficial e aprovação precisam ser demonstradas |
-| Meta Verified no app | Assinatura sujeita à elegibilidade e documentação; não tratada como substituta de acesso à API |
-| Cloud API/BSP oficial | Somente habilitar se o cadastro e o uso desejado forem aceitos sem CNPJ; não considerar já aprovado |
-| Twilio como atalho sem verificação | Não adotado: o fluxo consultado exige verificação do negócio antes de produção nas condições descritas [W1] |
-| Automação por sessão do WhatsApp Web/QR | Fora da arquitetura proposta; não comprova API oficial nem resolve identidade e confiabilidade |
+É uma aplicação compartilhada com múltiplos canais de empresas. Não exige criar outro software nem uma VPS para cada número. Cada loja autoriza a conexão de seus ativos e mantém titularidade e saída/portabilidade previstas em contrato.
 
-A documentação da Twilio explica que o nome exibido depende do estado da conta e do comportamento do WhatsApp; o provedor não controla toda a apresentação no aparelho do destinatário [W2]. Selo não elimina risco de suspensão.
+### Conectar o número existente primeiro
 
-Uma conta central não muda legitimamente sua identidade para “Loja A” num envio e “Loja B” no seguinte. Exemplo de texto da plataforma: “Nexakeep • agendamento na Loja A: serviço, data e horário. Consulte sua reserva no link oficial.” Os campos vêm do evento validado no backend.
+Antes de contratar outro número, verificar o WhatsApp que a loja já usa. Existem fluxos oficiais de **Coexistence**, para conectar um número do WhatsApp Business app à API preservando uso do aplicativo em condições elegíveis. Nem toda conta/provedor tem suporte e contas novas podem não ser elegíveis. Não desconectar o número atual nem migrá-lo para testar por tentativa e erro.
 
-### Alternativa inicial recomendada
+A documentação da 360dialog descreve esse caminho e informa assinatura e tarifas de API próprias. Ela é referência técnica nesta etapa, não fornecedor escolhido nem solução aprovada para CPF:
+https://docs.360dialog.com/partner/onboarding/whatsapp-coexistence
 
-1. O cliente agenda no site da loja e vê confirmação persistida.
-2. Pode receber e-mail transacional, quando fornecido e habilitado, e baixar o compromisso para o calendário.
-3. Um botão abre o WhatsApp real da loja com mensagem preenchida; a pessoa precisa apertar enviar.
-4. A dona confirma/atende pelo próprio WhatsApp Business. Explicar no site de qual número poderá receber mensagens.
-5. Manter a integração automática opcional até validar o cadastro oficial.
+Se o número atual não for elegível, avaliar canal dedicado com cadastro oficial. Nome de exibição, posse do número, verificação do negócio e selo continuam sendo processos diferentes. A exibição exata em cada tela não é controlada pela Nexakeep.
 
-Essa alternativa sacrifica envio automático no WhatsApp, mas preserva agendamento, identificação do negócio e funcionamento sem contratar um BSP antes da hora. Se automação for requisito indispensável do cliente, não vender como disponível até resolver a T14.
+### Mapeamento técnico
 
-### O que validar na T14
+Manter cadastro de canais: empresa, provedor, conta empresarial/WABA, phone_number_id ou identificador equivalente, nome aprovado, referência segura da credencial, permissões, status e titularidade.
 
-- Conta própria, titularidade do número e disponibilidade de uso comercial.
-- Documentos efetivamente aceitos para PF, para o produto e o uso em produção pretendidos.
-- Quem representa a marca e se há exigência de programa de provedor tecnológico.
-- Nome exibido em aparelhos onde o contato não está salvo.
-- Tarifas vigentes por país, categoria e entrega; não assumir R$0,05 universal.
-- Templates, opt-in, identificação da plataforma/loja, saída e limites.
-- Qualquer opção nova de username ou número fornecido pela Meta: elegibilidade e comportamento reais, sem presumir que substituem verificação.
+- Mensagem recebida: validar assinatura, conta e número receptor; resolver a empresa por cadastro confiável; só então identificar o remetente e verificar seu vínculo/permissões.
+- Reserva criada: resolver empresa no backend; selecionar o canal daquela empresa e template aprovado nessa conta.
+- Conversas/contexto separados por empresa + canal + participante; nunca compartilhar histórico entre lojas.
+- Ações administrativas continuam restritas a donos/funcionários vinculados. Conectar canal não autoriza qualquer consumidor a comandar a loja.
+- Cliente final só recebe atendimento/ações próprios previstos no módulo, sem acesso ao painel administrativo.
+- Templates podem ter modelos internos reaproveitáveis, mas publicação/aprovação é controlada por conta/provedor. Não presumir que a aprovação da Loja A serve automaticamente à B.
+- Custos e limites por canal/empresa. Uma integração central não torna os vários números gratuitos.
+- Cancelamento revoga acesso da plataforma e preserva a titularidade do número da loja, conforme integração e contrato.
 
-Não mudar ou reaproveitar o número atual de outra operação sem confirmar titularidade e impacto.
+Exemplo técnico de onboarding de empresas por uma plataforma:
+https://www.twilio.com/docs/whatsapp/isv/register-senders
+A referência descreve a integração, não comprova elegibilidade sem CNPJ para este projeto.
 
-### Templates previstos, ainda não aprovados
+### Sem CNPJ: condição ainda em aberto
 
-Confirmação, lembrete, reagendamento, cancelamento, aviso à dona e notificação operacional, cada qual com finalidade clara. Separar promoção de evento de serviço; não adicionar oferta publicitária a um lembrete para tentar obter outra categoria.
+O requisito atual continua sendo contratar apenas serviços aceitos para pessoa física. Antes de oferecer automação, confirmar **separadamente** documentação exigida da plataforma prestadora e de cada loja conectada, uso em produção, suporte a coexistência, custos, nome exibido e procedimento de desligamento.
 
-O catálogo interno guarda nome, versão, idioma, provedor/conta, categoria aprovada, variáveis e status. Reuso depende das regras e da aprovação no canal, não somente de trocar o texto da loja.
+Não foi confirmada uma oferta oficial que aceite este caso completo sem CNPJ. Um BSP pago ou Coexistence não dispensa automaticamente documentos. Se o fluxo exigir CNPJ e não houver caminho permitido para PF, esse fornecedor fica fora do escopo atual.
 
-Número publicado na internet não é permissão para disparo em massa. O CRM deve registrar origem, interesse, autorização quando exigida, recusa e bloqueio de novos contatos. Na Business Platform, mensagens proativas seguem as regras do canal [W3].
+Até resolver essa condição, o site/painel/e-mail e o WhatsApp Business manual da própria loja são o modo inicial possível. Não anunciar automação como pronta.
+
+### O exemplo da DigAÍ
+
+A central oficial da DigAÍ confirma que ela usa vários números e que o nome de sua IA muda conforme a empresa da vaga. Isso é compatível com a experiência descrita, mas não revela publicamente sua arquitetura interna, seus custos ou seus contratos de telefonia.
+
+Fonte: https://centraldocandidato.digai.ai/guias/confirmar-digai-oficial
+
+### Templates e prospecção
+
+Planejar confirmação, lembrete, reagendamento, cancelamento e avisos à dona, com versão, idioma, finalidade, variáveis e aprovação por conta. Publicidade fica separada.
+
+Respeitar autorização de contato e saída. Ter telefone público não equivale a permissão para disparo em massa. Regras: https://whatsappbusiness.com/policy/
+
+**Impacto no roteiro:** T14 passa a avaliar múltiplas lojas/contas e número existente; T15 integra um canal real por vez, depois de testes de isolamento e confirmação da elegibilidade.
