@@ -75,7 +75,7 @@ Referências de comportamento público; nenhuma assinatura é proposta para copi
 | ~~VPS atual, fatura, recursos e vencimento~~ | **Verificado em 15/10/2026 (T01):** não há VPS ativa; a única da conta está suspensa após vencimento. Nova VPS é compra e depende do titular | Implantação de teste (T10) |
 | ~~DNS e renovação de nexakeep.site~~ | **Verificado em 15/10/2026 (T01):** domínio ativo, sem renovação automática, `@` aponta para servidor fora da conta consultada, sem registros de e-mail. Falta o titular decidir renovação e destino | Publicação e e-mail |
 | E-mail SMTP disponível para PF e envio transacional | Conferir plano/termos e teste de entrega | Recuperação e mensagens automáticas |
-| Dependências da base anterior | **Parcial (T01):** Supabase usado só como PostgreSQL — sem Auth, Storage, Realtime, Edge Functions ou policies. Auditoria de código na T03 | Migração/reaproveitamento seguro |
+| ~~Dependências da base anterior~~ | **Concluído (T01/T03):** Supabase usado só como PostgreSQL; decisão de reaproveitamento em [BASE-ANTERIOR.md](BASE-ANTERIOR.md). Migração de dados não executada | Migração de dados da loja anterior (se ela virar cliente) |
 | API WhatsApp sem CNPJ para o uso desejado | **Decidido na T14 (15/10/2026):** bloqueada para o número existente (Coexistence exige parceiro; Tech Provider exige CNPJ/MEI). Número novo da loja pela Cloud API direta depende dos portões de WHATSAPP.md §5, inclusive orientação jurídica | Somente o módulo automático de WhatsApp |
 | Conta de pagamentos e tarifas | Validar cadastro PF e opções efetivas | Cobrança por cartão/boleto |
 | Backup externo | Escolher destino permitido para PF, custo, retenção e restaurar | Dados reais em produção |

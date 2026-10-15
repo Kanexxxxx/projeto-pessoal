@@ -6,7 +6,7 @@ Atualizado em 15/10/2026 pela sessão do Claude Code (ver "Registro de execuçã
 
 - Repositório: <https://github.com/Kanexxxxx/projeto-pessoal> (**público**).
 - Domínio informado: nexakeep.site, Hostinger — ativo, renovação automática **desligada**.
-- Tarefas concluídas: **T01**, **T14**. Preparada, aguardando aceite: **T02** ([OFERTA.md](OFERTA.md)). Em andamento: T03.
+- Tarefas concluídas: **T01**, **T03** ([BASE-ANTERIOR.md](BASE-ANTERIOR.md)), **T14** ([WHATSAPP.md](WHATSAPP.md)). Preparada, aguardando aceite: **T02** ([OFERTA.md](OFERTA.md)). Em andamento: T05.
 - Aplicação: ainda não implementada.
 - Infraestrutura: **não há VPS ativa** na conta Hostinger consultada; a única VPS (de outro projeto) está suspensa após vencimento. Não há e-mail nem hospedagem web contratados. Detalhes no inventário privado (`privado/INVENTARIO-T01.md`, fora do Git).
 - Produção, DNS, e-mail, pagamentos e banco: **não alterados**. Todas as consultas foram de leitura.
@@ -130,6 +130,24 @@ Não incluir senha, API key, token, dump, CPF, telefone de cliente ou log com co
 - **Pendências e riscos conhecidos:** decisões da OFERTA.md §1; perguntas da §8.
 - **Próxima ação exata:** concluir T03 e iniciar T05 (fundação local). T04 e T07 usam a OFERTA.md como base de trabalho e devem ser revistas se o titular mudar escopo.
 - **Ação externa realizada e autorização:** nenhuma.
+
+### T03 — Auditoria da base anterior e decisão de reaproveitamento
+
+- **Tarefa:** T03, concluída.
+- **Data e commit:** 15/10/2026; commit `docs: auditar base anterior e decidir reaproveitamento (T03)`.
+- **O que foi concluído:** auditoria somente leitura do repositório privado da base anterior, feita por um agente dedicado e conferida nesta sessão. Decisão e regras herdadas em [BASE-ANTERIOR.md](BASE-ANTERIOR.md); relatório completo com arquivo:linha em `privado/AUDITORIA-BASE-ANTERIOR.md` (fora do Git, porque o sistema auditado está no ar).
+- **Decisão:** não fazer fork; a Nexakeep nasce neste repositório, sem o histórico da base. Reaproveitar PIX, QR/PNG, telefone e o padrão de proposta com toque humano; adaptar motor de horários, webhook e notificações; reescrever dados, webhook, lembretes, limites e IA; descartar sessão caseira e todo conteúdo da cliente. Porte estimado em 210–327 h, além das funções novas.
+- **Testes executados e resultados (na cópia da base):** `npm ci` ok; `npm test` 614 passaram, 12 pulados, 0 falharam; lint ok; `tsc` só passa após `next typegen`; `npm audit --omit=dev` com 3 vulnerabilidades. Achado de validação de data reproduzido de forma independente nesta sessão (prova de conceito com banco simulado: 2/2 testes confirmaram o desvio).
+- **Teste de viabilidade técnica (fora do repositório):** PostgreSQL 18.4 embutido via npm, sem instalação de sistema, subiu em ~10 s no Windows. Papel de aplicação sem SUPERUSER/BYPASSRLS; RLS isolou loja A de B; sem escopo nada é visível; gravação cruzada recusada (42501); escopo não vaza após a transação; duas conexões disputando o mesmo horário → uma grava, outra recebe 23P01. O pacote **não traz `pg_dump`** (afeta o teste de backup da T10) e o npm 11 exige aprovação para scripts de instalação.
+- **Arquivos alterados:** `docs/BASE-ANTERIOR.md` (novo), `docs/CONTINUIDADE.md`, `docs/TAREFAS.md`, `docs/FONTES.md`, `README.md`.
+- **Decisões tomadas e motivo:** detalhes exploráveis do sistema em produção ficam no relatório privado (divulgação responsável). Next.js da nova base fixado em versão ≥ 16.4.1, que corrige avisos críticos publicados em 14/10/2026.
+- **Custos/consumo medidos:** nenhum.
+- **Pendências e riscos conhecidos (decisão do titular, sistema da base anterior):**
+  1. Atualizar a produção da base anterior para Next ≥ 16.4.2: o aviso de negação de serviço via Server Actions (alto) se aplica a ela; os dois críticos de execução remota dependem de pré-condições que a auditoria não encontrou (`use cache`, SVG no otimizador).
+  2. Corrigir a validação de data do agendamento público (detalhe no relatório privado, §4.5).
+  3. Confirmar a rotação de um token que apareceu em captura de tela (relatório privado, S13).
+- **Próxima ação exata:** T05 — fundação local (Next.js 16.4, PostgreSQL embutido fora do OneDrive, migrações SQL versionadas, papéis de banco, autenticação por biblioteca com MFA do operador, recuperação de senha e testes de sessão).
+- **Ação externa realizada e autorização:** nenhuma. O clone do repositório privado foi feito com a credencial Git já existente na máquina, só para leitura.
 
 ## Plugins e acesso
 
