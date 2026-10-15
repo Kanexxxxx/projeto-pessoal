@@ -9,7 +9,7 @@
 - Produção, DNS, e-mail, pagamentos e banco: não alterados nesta revisão.
 - Próxima tarefa: T01, com inventário privado; depois T02/T03.
 - Banco proposto: PostgreSQL na VPS, dependente da auditoria antes de migração.
-- WhatsApp automático: decisão pendente de viabilidade oficial sem CNPJ.
+- WhatsApp: plataforma central com um canal próprio por loja; preferir número existente quando houver integração oficial elegível. Viabilidade sem CNPJ e custos por canal ainda precisam de confirmação.
 - Serviços que exigirem CNPJ no uso pretendido: fora do escopo atual.
 
 ## Como iniciar no VS Code
@@ -18,9 +18,9 @@ Abra ou clone o repositório informado e use o Codex na pasta dele. O contexto d
 
 Prompt de partida:
 
-> Leia README.md, docs/PLANO.md, docs/ARQUITETURA.md, docs/TAREFAS.md e docs/CONTINUIDADE.md. Estamos no planejamento da Nexakeep, domínio nexakeep.site, execução por uma pessoa. Comece pela T01 e pela auditoria da base existente necessária à T03. Identifique o que está realmente acessível, os custos e dependências, sem expor segredos ou dados de clientes. Use os plugins disponíveis para leitura. Serviços que exijam CNPJ não atendem ao escopo atual. Não compre, renove, migre, publique ou altere produção durante o inventário. Depois registre decisões e proponha o próximo trabalho concreto. Não reimplemente tudo sem avaliar o que já existe.
+> Continue o projeto https://github.com/Kanexxxxx/projeto-pessoal no VS Code. Leia README.md e os documentos de plano, arquitetura, tarefas e continuidade em docs/. O domínio provisório é nexakeep.site. Comece pela T01, avance conforme as dependências e implemente uma etapa por vez, reaproveitando a base existente após auditoria. Use os plugins e skills pertinentes disponíveis. A arquitetura deve conectar um WhatsApp próprio de cada loja à plataforma central, preferindo números existentes por integração oficial elegível. Não adote serviços que exijam CNPJ no uso pretendido nem presuma essa elegibilidade. Siga as regras documentadas de isolamento entre lojas, exclusão de dados, backups e limites de custos. Desenvolva e teste localmente; compras e alterações em produção precisam de autorização específica. Mantenha segredos e dados de clientes fora do Git. Ao concluir cada etapa, registre o que mudou, os testes e a próxima ação em docs/CONTINUIDADE.md.
 
-Essa limitação vale para a tarefa inicial de inventário. Etapas futuras seguem o escopo então autorizado pelo responsável.
+A continuidade solicitada inclui implementação local por etapas, após o inventário e as decisões necessárias. A execução segue as dependências de TAREFAS.md e os critérios de aceite; uma restrição pendente, como a elegibilidade do WhatsApp, não deve ser ignorada nem impedir tarefas independentes. Esta documentação não afirma que código ou testes da aplicação já foram executados.
 
 ## Poupar o limite de desenvolvimento
 
