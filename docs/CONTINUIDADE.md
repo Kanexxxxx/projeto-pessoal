@@ -6,7 +6,7 @@ Atualizado em 15/10/2026 pela sessão do Claude Code (ver "Registro de execuçã
 
 - Repositório: <https://github.com/Kanexxxxx/projeto-pessoal> (**público**).
 - Domínio informado: nexakeep.site, Hostinger — ativo, renovação automática **desligada**.
-- Tarefas concluídas: **T01**, **T14**. Em andamento: T03.
+- Tarefas concluídas: **T01**, **T14**. Preparada, aguardando aceite: **T02** ([OFERTA.md](OFERTA.md)). Em andamento: T03.
 - Aplicação: ainda não implementada.
 - Infraestrutura: **não há VPS ativa** na conta Hostinger consultada; a única VPS (de outro projeto) está suspensa após vencimento. Não há e-mail nem hospedagem web contratados. Detalhes no inventário privado (`privado/INVENTARIO-T01.md`, fora do Git).
 - Produção, DNS, e-mail, pagamentos e banco: **não alterados**. Todas as consultas foram de leitura.
@@ -116,6 +116,20 @@ Não incluir senha, API key, token, dump, CPF, telefone de cliente ou log com co
 - **Comandos para retomar:** nenhum específico.
 - **Estado do ambiente:** inalterado.
 - **Ação externa realizada e autorização:** nenhuma; só leitura de páginas públicas.
+
+### T02 — Oferta, orçamento e termos comerciais
+
+- **Tarefa:** T02, **preparada — aguarda aceite do titular**. Os itens dependem de decisão comercial e de orientação fiscal/jurídica; não foram dados como fechados.
+- **Data e commit:** 15/10/2026; commit `docs: preparar oferta e conta de margem (T02)`.
+- **O que foi concluído:** [OFERTA.md](OFERTA.md) com limites provisórios do plano de R$50, custos reais (domínio, catálogo de VPS e e-mail), conta de margem por cenário, linha do tempo de cobrança e suspensão, módulos opcionais, regras de saída, perguntas para contador/jurídico e roteiro de cláusulas.
+- **Resultado da conta:** contribuição de R$29 por cliente (com 15 min de suporte/mês); 2 a 5 clientes cobrem a infraestrutura, conforme ciclo da VPS e e-mail. Com 1 h de suporte/mês a contribuição fica negativa.
+- **Arquivos alterados:** `docs/OFERTA.md` (novo), `docs/CONTINUIDADE.md`, `docs/TAREFAS.md`, `README.md`.
+- **Testes executados e resultados:** conta reproduzida por script Node com os valores do catálogo (saída registrada na OFERTA.md §4).
+- **Decisões tomadas e motivo:** os limites do plano são provisórios até medir o piloto, como pede o PLANO.md §3. A reserva de 10% não é alíquota e será substituída pela orientação do contador.
+- **Custos/consumo medidos:** nenhum gasto.
+- **Pendências e riscos conhecidos:** decisões da OFERTA.md §1; perguntas da §8.
+- **Próxima ação exata:** concluir T03 e iniciar T05 (fundação local). T04 e T07 usam a OFERTA.md como base de trabalho e devem ser revistas se o titular mudar escopo.
+- **Ação externa realizada e autorização:** nenhuma.
 
 ## Plugins e acesso
 

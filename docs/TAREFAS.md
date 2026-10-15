@@ -2,7 +2,7 @@
 
 Data-base: 15/10/2026. Objetivo de revisão: 22/10/2026, no horário de São Paulo. A ordem depende de entregas, não de uma tarefa obrigatória por dia. É possível concluir duas tarefas no mesmo dia; não marcar pronta uma etapa só porque terminou o dia.
 
-**Estado em 15/10/2026:** T01 e T14 concluídas (T14: API bloqueada para o número existente; modo manual) · T03 em andamento · demais pendentes. O registro de cada etapa (o que mudou, testes, pendências e próxima ação) fica em [CONTINUIDADE.md](CONTINUIDADE.md#registro-de-execução).
+**Estado em 15/10/2026:** T01 e T14 concluídas (T14: API bloqueada para o número existente; modo manual) · T02 preparada, aguardando aceite do titular · T03 em andamento · demais pendentes. O registro de cada etapa (o que mudou, testes, pendências e próxima ação) fica em [CONTINUIDADE.md](CONTINUIDADE.md#registro-de-execução).
 
 ## 1. Regras de execução
 

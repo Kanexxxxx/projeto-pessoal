@@ -16,8 +16,10 @@ Plataforma em planejamento para sites de pequenos negócios, agendamentos e CRM 
 2. [Arquitetura, segurança e operação](docs/ARQUITETURA.md)
 3. [20 tarefas e critérios de aceite](docs/TAREFAS.md)
 4. [CRM: especificação e guia de uso](docs/CRM.md)
-5. [Continuidade entre Codex e Claude](docs/CONTINUIDADE.md)
+5. [Continuidade entre Codex e Claude](docs/CONTINUIDADE.md) — estado atual e registro de cada etapa
 6. [Fontes e pendências de verificação](docs/FONTES.md)
+7. [Oferta, custos reais e termos (T02)](docs/OFERTA.md)
+8. [WhatsApp por loja sem CNPJ (T14)](docs/WHATSAPP.md)
 
 ## Ponto de partida
 
