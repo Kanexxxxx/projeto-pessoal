@@ -1,0 +1,13 @@
+# Fins de linha LF em todo texto: o projeto é editado no Windows e roda em Linux,
+# e um hook com CRLF quebra o "#!/bin/sh".
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

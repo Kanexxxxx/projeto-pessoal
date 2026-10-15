@@ -6,7 +6,7 @@ Plataforma em planejamento para sites de pequenos negócios, agendamentos e CRM 
 - **Domínio informado:** `nexakeep.site`, na Hostinger.
 - **Repositório:** https://github.com/Kanexxxxx/projeto-pessoal
 - **Data desta revisão:** 15/10/2026.
-- **Etapa atual:** documentação e decisões. Aplicação ainda não implementada.
+- **Etapa atual:** T01 concluída (inventário); T03 e T14 em andamento. Aplicação ainda não implementada. Ver [docs/CONTINUIDADE.md](docs/CONTINUIDADE.md).
 - **Execução prevista:** Codex no VS Code, por tarefas com critérios de conclusão.
 - **Restrição comercial atual:** selecionar serviços disponíveis para pessoa física; contratação sujeita à elegibilidade da conta.
 

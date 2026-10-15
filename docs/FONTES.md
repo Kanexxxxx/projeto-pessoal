@@ -70,10 +70,10 @@ Referências de comportamento público; nenhuma assinatura é proposta para copi
 
 | Pendência | Como resolver | Bloqueia |
 |---|---|---|
-| VPS atual, fatura, recursos e vencimento | Plugin de administração Hostinger disponível/autenticado no ambiente local ou consulta pelo titular | Orçamento final e implantação |
-| DNS e renovação de nexakeep.site | Ler conta/DNS reais | Publicação e e-mail |
+| ~~VPS atual, fatura, recursos e vencimento~~ | **Verificado em 15/10/2026 (T01):** não há VPS ativa; a única da conta está suspensa após vencimento. Nova VPS é compra e depende do titular | Implantação de teste (T10) |
+| ~~DNS e renovação de nexakeep.site~~ | **Verificado em 15/10/2026 (T01):** domínio ativo, sem renovação automática, `@` aponta para servidor fora da conta consultada, sem registros de e-mail. Falta o titular decidir renovação e destino | Publicação e e-mail |
 | E-mail SMTP disponível para PF e envio transacional | Conferir plano/termos e teste de entrega | Recuperação e mensagens automáticas |
-| Dependências da base anterior | Auditoria autorizada do código e configuração sem expor segredos | Migração/reaproveitamento seguro |
+| Dependências da base anterior | **Parcial (T01):** Supabase usado só como PostgreSQL — sem Auth, Storage, Realtime, Edge Functions ou policies. Auditoria de código na T03 | Migração/reaproveitamento seguro |
 | API WhatsApp sem CNPJ para o uso desejado | Cadastro/elegibilidade/documentos e teste oficial | Somente o módulo automático de WhatsApp |
 | Conta de pagamentos e tarifas | Validar cadastro PF e opções efetivas | Cobrança por cartão/boleto |
 | Backup externo | Escolher destino permitido para PF, custo, retenção e restaurar | Dados reais em produção |

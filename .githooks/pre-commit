@@ -1,0 +1,4 @@
+#!/bin/sh
+# Trava de publicação: este repositório é público (ver scripts/verificar-publicacao.mjs).
+# Não use --no-verify para contornar: corrija o arquivo ou troque o segredo.
+exec node scripts/verificar-publicacao.mjs
