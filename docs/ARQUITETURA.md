@@ -273,6 +273,8 @@ Não foi confirmada uma oferta oficial que aceite este caso completo sem CNPJ. U
 
 Até resolver essa condição, o site/painel/e-mail e o WhatsApp Business manual da própria loja são o modo inicial possível. Não anunciar automação como pronta.
 
+**Resultado da T14 (15/10/2026), detalhado em [WHATSAPP.md](WHATSAPP.md):** Coexistence exige Solution Partner ou Tech Provider; Tech Provider exige verificação da empresa com documentos de PJ (CNPJ/MEI). Por isso a API fica **bloqueada para o número existente** e o modo inicial é o manual. A Cloud API direta com número novo, app e WABA da própria loja funcionou sem CNPJ na base anterior, mas só vira piloto depois dos portões de WHATSAPP.md §5 — inclusive orientação jurídica, porque os Termos da Meta descrevem o prestador de serviço como pessoa jurídica. Desde 01/10/2026 a Meta também cobra mensagens dentro da janela de 24 h, o que muda a conta de custo por loja.
+
 ### O exemplo da DigAÍ
 
 A central oficial da DigAÍ confirma que ela usa vários números e que o nome de sua IA muda conforme a empresa da vaga. Isso é compatível com a experiência descrita, mas não revela publicamente sua arquitetura interna, seus custos ou seus contratos de telefonia.

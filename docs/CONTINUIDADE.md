@@ -6,12 +6,12 @@ Atualizado em 15/10/2026 pela sessão do Claude Code (ver "Registro de execuçã
 
 - Repositório: <https://github.com/Kanexxxxx/projeto-pessoal> (**público**).
 - Domínio informado: nexakeep.site, Hostinger — ativo, renovação automática **desligada**.
-- Tarefas concluídas: **T01**. Em andamento: T03 e T14.
+- Tarefas concluídas: **T01**, **T14**. Em andamento: T03.
 - Aplicação: ainda não implementada.
 - Infraestrutura: **não há VPS ativa** na conta Hostinger consultada; a única VPS (de outro projeto) está suspensa após vencimento. Não há e-mail nem hospedagem web contratados. Detalhes no inventário privado (`privado/INVENTARIO-T01.md`, fora do Git).
 - Produção, DNS, e-mail, pagamentos e banco: **não alterados**. Todas as consultas foram de leitura.
 - Banco proposto: PostgreSQL próprio. A base anterior usa o Supabase só como PostgreSQL hospedado (sem Auth, Storage, Realtime, Edge Functions ou policies), então não há serviço do Supabase a substituir.
-- WhatsApp: plataforma central com um canal próprio por loja; preferir número existente quando houver integração oficial elegível. A base anterior já enviou pela Cloud API oficial com uma profissional sem CNPJ; o caso multiloja e os custos estão sendo verificados na T14.
+- WhatsApp: plataforma central com um canal próprio por loja; preferir número existente quando houver integração oficial elegível. Decisão da T14 em [WHATSAPP.md](WHATSAPP.md): API bloqueada para o número existente (Coexistence exige parceiro; Tech Provider exige CNPJ/MEI); modo inicial manual; piloto com número novo da loja só após os portões de WHATSAPP.md §5.
 - Serviços que exigirem CNPJ no uso pretendido: fora do escopo atual.
 - Trava de publicação ativa: `scripts/verificar-publicacao.mjs` roda no pre-commit (`.githooks/`). Ao clonar de novo, executar `git config core.hooksPath .githooks`.
 
@@ -91,6 +91,31 @@ Não incluir senha, API key, token, dump, CPF, telefone de cliente ou log com co
 - **Comandos para retomar:** `git config core.hooksPath .githooks` · `node --test scripts/verificar-publicacao.test.mjs` · `node scripts/verificar-publicacao.mjs --todos`.
 - **Estado do ambiente:** nenhum serviço local rodando; nada implantado.
 - **Ação externa realizada e autorização:** nenhuma. Só leituras.
+
+### T14 — Decisão de canal WhatsApp sem CNPJ
+
+- **Tarefa:** T14, concluída pelo ramo "não viável para o número existente → modo manual + API bloqueada". O piloto com número novo (caminho B) continua possível, condicionado.
+- **Data e commit:** 15/10/2026; commit `docs: decidir canal WhatsApp sem CNPJ (T14)`.
+- **O que foi concluído:** pesquisa nas páginas oficiais da Meta (preços, mudança de 01/10/2026, Coexistence, Tech Provider, limites, Termos da Plataforma) e em fontes secundárias identificadas como tais; decisão em [WHATSAPP.md](WHATSAPP.md).
+- **Resultado:**
+  - Coexistence (número que a loja já usa) só é feito por Solution Partner ou Tech Provider.
+  - Tech Provider exige verificação da empresa; no Brasil os documentos aceitos são de PJ (CNPJ, MEI, contrato social) → fora do escopo.
+  - Cloud API direta com número novo e app/WABA/cartão da própria loja funcionou sem CNPJ na base anterior; vira piloto só depois dos portões de WHATSAPP.md §5.
+  - **Desde 01/10/2026 a Meta cobra mensagens de atendimento e templates de utilidade dentro da janela de 24 h** (≈ R$0,035 cada no Brasil; marketing ≈ R$0,32). A premissa "dentro da janela é grátis" da base anterior não vale mais.
+  - Limite inicial de 250 destinatários únicos/24 h por portfólio é suficiente para uma loja pequena.
+- **Arquivos alterados:** `docs/WHATSAPP.md` (novo), `docs/ARQUITETURA.md` (§11, resultado), `docs/FONTES.md`, `docs/CONTINUIDADE.md`, `docs/TAREFAS.md`.
+- **Testes executados e resultados:** não se aplica (pesquisa). Cada valor tem fonte e data; os valores de fontes secundárias estão marcados.
+- **Decisões tomadas e motivo:** modo manual como inicial porque é o único caminho oficial sem CNPJ, sem custo e sem mexer no número da loja. Não oficiais (Z-API, Evolution) proibidos pelo risco de banimento. WABA única da Nexakeep para todas as lojas descartada por contrariar a titularidade por loja.
+- **Custos/consumo medidos:** nenhum gasto. Estimativa para 300 reservas/mês no caminho B: R$10,50 a R$31,50/mês em mensagens, pagos pela WABA da loja.
+- **Pendências e riscos conhecidos:**
+  1. Orientação jurídica: os Termos da Meta (PT) descrevem o "Provedor de Serviços" como pessoa jurídica e exigem acordo escrito — define se o caminho B é permitido para pessoa física.
+  2. Franquia de 1.000 mensagens de atendimento por número/mês: relatada por fornecedor, não encontrada no texto oficial lido; confirmar na primeira fatura.
+  3. Se a fatura em BRL aceita CPF: não confirmado.
+  4. Parceiros para Coexistence com preço por mensagem (sem mensalidade por número) e que aceitem pessoa física: não pesquisados a fundo; 360dialog cobra a partir de €49/número/mês.
+- **Próxima ação exata:** concluir T03 (auditoria em andamento); preparar T02 com os custos reais de T01 e T14.
+- **Comandos para retomar:** nenhum específico.
+- **Estado do ambiente:** inalterado.
+- **Ação externa realizada e autorização:** nenhuma; só leitura de páginas públicas.
 
 ## Plugins e acesso
 

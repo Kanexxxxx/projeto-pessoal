@@ -46,6 +46,8 @@ Consulta em 15/10/2026. Preços, funcionalidades, elegibilidade e políticas pod
 
 Nenhum remetente foi registrado, nome aprovado, template criado ou mensagem enviada nesta revisão.
 
+As fontes da decisão da T14 (W7–W15: preços oficiais, mudança de 01/10/2026, Coexistence, Tech Provider, limites, Termos da Plataforma, documentos de verificação no Brasil e 360dialog) estão em [WHATSAPP.md §7](WHATSAPP.md#7-fontes-consultadas-em-15102026).
+
 ## IA e limites de programação
 
 - **A1 — GPT-6 Luna:** https://developers.openai.com/api/docs/models/gpt-6-luna
@@ -74,7 +76,7 @@ Referências de comportamento público; nenhuma assinatura é proposta para copi
 | ~~DNS e renovação de nexakeep.site~~ | **Verificado em 15/10/2026 (T01):** domínio ativo, sem renovação automática, `@` aponta para servidor fora da conta consultada, sem registros de e-mail. Falta o titular decidir renovação e destino | Publicação e e-mail |
 | E-mail SMTP disponível para PF e envio transacional | Conferir plano/termos e teste de entrega | Recuperação e mensagens automáticas |
 | Dependências da base anterior | **Parcial (T01):** Supabase usado só como PostgreSQL — sem Auth, Storage, Realtime, Edge Functions ou policies. Auditoria de código na T03 | Migração/reaproveitamento seguro |
-| API WhatsApp sem CNPJ para o uso desejado | Cadastro/elegibilidade/documentos e teste oficial | Somente o módulo automático de WhatsApp |
+| API WhatsApp sem CNPJ para o uso desejado | **Decidido na T14 (15/10/2026):** bloqueada para o número existente (Coexistence exige parceiro; Tech Provider exige CNPJ/MEI). Número novo da loja pela Cloud API direta depende dos portões de WHATSAPP.md §5, inclusive orientação jurídica | Somente o módulo automático de WhatsApp |
 | Conta de pagamentos e tarifas | Validar cadastro PF e opções efetivas | Cobrança por cartão/boleto |
 | Backup externo | Escolher destino permitido para PF, custo, retenção e restaurar | Dados reais em produção |
 | Modelo de IA adequado | Avaliação pequena com dados sintéticos e teto de gasto | Habilitação comercial do assistente |
