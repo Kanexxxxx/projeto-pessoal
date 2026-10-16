@@ -18,6 +18,8 @@ npm run dev
 
 `preparar` gera segredos aleatórios em `.env.local` e preserva um arquivo já existente. Não copie esses valores para o chat, Git ou produção.
 
+Os comandos de instalação (`npm ci`) só são necessários na primeira vez ou quando `package-lock.json` mudar. **Desligue o banco antes** (`npm run bd:parar`): os programas do PostgreSQL ficam dentro de `node_modules`, e o Windows não deixa apagá-los enquanto estão em uso (erro `EPERM ... icuin77.dll`). No dia a dia bastam `npm run bd:subir` e `npm run dev`. Os avisos `ERESOLVE overriding peer dependency` do ESLint na instalação são esperados: plugins do `eslint-config-next` ainda declaram suporte só até o ESLint 9, e o lint do projeto passa com o 10.
+
 - Plataforma: <http://localhost:3000>
 - Painel do operador: <http://app.localhost:3000>
 - As páginas de loja ainda retornam 404; serão implementadas na T06/T08.
