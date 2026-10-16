@@ -50,3 +50,6 @@ desktop.ini
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Teste de navegador
+.next-e2e/

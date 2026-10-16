@@ -9,6 +9,7 @@
 // Uso:
 //   node scripts/verificar-publicacao.mjs            # arquivos em stage (pre-commit)
 //   node scripts/verificar-publicacao.mjs --todos    # todos os arquivos versionados
+//   node scripts/verificar-publicacao.mjs --trabalho # disco, incluindo novos não ignorados
 //   node scripts/verificar-publicacao.mjs --arquivos a.txt b.ts   # arquivos do disco
 //
 // Para marcar um dado fictício que o verificador confundiria com real, use na
@@ -54,6 +55,10 @@ const SEGREDOS = [
 // DDDs não atribuídos pela Anatel: telefones de teste devem usar um deles.
 const DDDS_FICTICIOS = new Set(['20', '23', '25', '26', '29', '30', '36', '39', '40', '50', '52', '56', '57', '58', '59', '60', '70', '72', '76', '78', '80', '90']);
 const TELEFONE = /(?<![\d])(?:\+?55[\s.-]?)?\(?([1-9]\d)\)?[\s.-]?(9\d{4})[\s.-]?(\d{4})(?![\d])/g;
+// Telefone em formato internacional colado em outros dígitos (ex.: dentro de um BR Code PIX).
+const TELEFONE_E164 = /\+55([1-9]\d)9?\d{8}/g;
+// Payload PIX só entra se for fictício e marcado: um BR Code real carrega chave, nome e cidade.
+const PIX = /br\.gov\.bcb\.pix/i;
 const CPF = /(?<![\d])(\d{3})\.?(\d{3})\.?(\d{3})-?(\d{2})(?![\d])/g;
 const EMAIL = /[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})/g;
 const DOMINIOS_DE_EMAIL_PERMITIDOS = /(^|\.)(example\.(com|org|net)|exemplo\.(com|test)|[a-z0-9-]+\.(test|example|invalid|localhost)|nexakeep\.site|users\.noreply\.github\.com|anthropic\.com)$/i;
@@ -81,6 +86,9 @@ function listarArquivos(argv) {
   }
   if (argv.includes('--todos')) {
     return { origem: 'indice', arquivos: git(['ls-files', '-z']).split('\0').filter(Boolean) };
+  }
+  if (argv.includes('--trabalho')) {
+    return { origem: 'disco', arquivos: [...new Set(git(['ls-files', '--cached', '--others', '--exclude-standard', '-z']).split('\0').filter(Boolean))] };
   }
   const saida = git(['diff', '--cached', '--name-only', '--diff-filter=ACMR', '-z']);
   return { origem: 'indice', arquivos: saida.split('\0').filter(Boolean) };
@@ -110,6 +118,10 @@ export function verificarTexto(caminho, texto) {
     for (const m of linha.matchAll(TELEFONE)) {
       if (!DDDS_FICTICIOS.has(m[1])) achados.push(`${onde} — telefone com DDD real (${m[1]}); em teste use DDD não atribuído, ex.: 20`);
     }
+    for (const m of linha.matchAll(TELEFONE_E164)) {
+      if (!DDDS_FICTICIOS.has(m[1])) achados.push(`${onde} — telefone internacional com DDD real (${m[1]})`);
+    }
+    if (PIX.test(linha)) achados.push(`${onde} — payload PIX: use chave fictícia e marque a linha`);
     for (const m of linha.matchAll(CPF)) {
       const digitos = m.slice(1, 5).join('');
       if (cpfValido(digitos)) achados.push(`${onde} — CPF com dígitos verificadores válidos`);

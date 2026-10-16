@@ -1,0 +1,65 @@
+{
+  "name": "nexakeep",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "preparar": "node scripts/preparar-ambiente.mjs",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verificar": "npm run lint && npm run typecheck && npm test && node scripts/verificar-publicacao.mjs --trabalho",
+    "bd:subir": "tsx scripts/bd-local.ts subir",
+    "bd:parar": "tsx scripts/bd-local.ts parar",
+    "bd:estado": "tsx scripts/bd-local.ts estado",
+    "bd:migrar": "tsx scripts/migrar.ts",
+    "bd:recriar": "tsx scripts/bd-local.ts recriar",
+    "operador:convidar": "tsx scripts/convidar-operador.ts",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@better-auth/utils": "0.5.0",
+    "better-auth": "1.7.10",
+    "kysely": "0.29.6",
+    "next": "16.4.2",
+    "pg": "8.23.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "24.19.2",
+    "@types/pg": "8.23.1",
+    "@types/qrcode": "1.5.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "10.12.0",
+    "eslint-config-next": "16.4.2",
+    "qrcode": "1.5.4",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vite": "8.3.4",
+    "vitest": "5.0.5"
+  },
+  "optionalDependencies": {
+    "@embedded-postgres/darwin-arm64": "18.4.0-beta.17",
+    "@embedded-postgres/linux-x64": "18.4.0-beta.17",
+    "@embedded-postgres/windows-x64": "18.4.0-beta.17"
+  },
+  "allowScripts": {
+    "@embedded-postgres/windows-x64": false,
+    "esbuild": false,
+    "unrs-resolver": false
+  }
+}

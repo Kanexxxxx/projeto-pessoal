@@ -1,35 +1,63 @@
-# Nexakeep — planejamento do produto
+# Nexakeep
 
-Plataforma em planejamento para sites de pequenos negócios, agendamentos e CRM interno.
+Plataforma de sites, agendamentos e CRM para pequenos negócios. A fundação local de acesso do operador está implementada e em revisão (T05); lojas, agenda e CRM ainda serão construídos.
 
-- **Nome provisório:** Nexakeep.
-- **Domínio informado:** `nexakeep.site`, na Hostinger.
-- **Repositório:** https://github.com/Kanexxxxx/projeto-pessoal
-- **Data desta revisão:** 15/10/2026.
-- **Etapa atual:** T01, T03 e T14 concluídas; T02 aguardando aceite; T05 (fundação local) em andamento. Ver [docs/CONTINUIDADE.md](docs/CONTINUIDADE.md).
-- **Execução prevista:** Codex no VS Code, por tarefas com critérios de conclusão.
-- **Restrição comercial atual:** selecionar serviços disponíveis para pessoa física; contratação sujeita à elegibilidade da conta.
+**Retomada por Codex/Claude:** leia [docs/CONTINUIDADE.md](docs/CONTINUIDADE.md) e os checkpoints em [docs/execucao/](docs/execucao/). Atualize o progresso durante a execução. Não reinicie o inventário da T01 nem considere pronta uma etapa sem validar seus critérios.
 
-## Leia nesta ordem
+## Rodar localmente
 
-1. [Plano comercial e custos](docs/PLANO.md)
-2. [Arquitetura, segurança e operação](docs/ARQUITETURA.md)
-3. [20 tarefas e critérios de aceite](docs/TAREFAS.md)
-4. [CRM: especificação e guia de uso](docs/CRM.md)
-5. [Continuidade entre Codex e Claude](docs/CONTINUIDADE.md) — estado atual e registro de cada etapa
-6. [Fontes e pendências de verificação](docs/FONTES.md)
-7. [Oferta, custos reais e termos (T02)](docs/OFERTA.md)
-8. [WhatsApp por loja sem CNPJ (T14)](docs/WHATSAPP.md)
-9. [Base anterior: auditoria e reaproveitamento (T03)](docs/BASE-ANTERIOR.md)
+Ambiente usado: Windows, Node.js 24 e npm. O PostgreSQL é fornecido pelo projeto, sem Docker ou instalação de serviço no sistema. O banco fica em `%LOCALAPPDATA%\Nexakeep`, fora do repositório. O domínio `nexakeep.site` continua provisório; estes comandos usam apenas localhost.
 
-## Ponto de partida
+```powershell
+npm ci --ignore-scripts
+git config core.hooksPath .githooks
+npm run preparar
+npm run bd:subir
+npm run dev
+```
 
-Começar pela **T01 — inventário de infraestrutura e da base existente**. Não considerar VPS, DNS, e-mail, WhatsApp ou banco configurados com base neste documento.
+`preparar` gera segredos aleatórios em `.env.local` e preserva um arquivo já existente. Não copie esses valores para o chat, Git ou produção.
 
-A oferta inicial proposta é configuração por **R$299** ou **R$600**, conforme escopo, com **R$50 mensais** pelo serviço básico. Consumo de IA/WhatsApp e domínio exclusivo precisam de limites e orçamento próprios.
+- Plataforma: <http://localhost:3000>
+- Painel do operador: <http://app.localhost:3000>
+- As páginas de loja ainda retornam 404; serão implementadas na T06/T08.
 
-## Estado do repositório
+Em outro terminal, crie um convite com e-mail fictício:
 
-Este repositório estava vazio e público no início da revisão. Os documentos não contêm credenciais, dados de clientes ou cópias de bancos. Segredos e inventários privados devem ficar fora do Git e de logs.
+```powershell
+npm run operador:convidar -- operador@nexakeep.test
+```
 
-Nenhuma documentação equivale a sistema implantado, teste executado, contrato jurídico revisado ou garantia de capacidade.
+O e-mail é gravado em `%LOCALAPPDATA%\Nexakeep\emails` (ou `NEXAKEEP_DADOS_LOCAIS/emails`). Abra o arquivo mais recente de convite e use o link do campo `texto` no navegador. Não há envio real. O token é secreto, vale uma vez e não aparece no terminal.
+
+No convite, crie a senha; depois configure um aplicativo autenticador. Guarde os códigos de reserva apresentados. O painel só libera acesso após verificar o segundo fator. O link “Esqueci minha senha” também produz um e-mail local. Redefinir a senha não remove o segundo fator.
+
+Para desligar: `Ctrl+C` no terminal do Next e `npm run bd:parar` em outro terminal. `npm run bd:estado` mostra o estado local. `npm run bd:migrar` aplica SQL pendente usando `DATABASE_URL_MIGRACAO`; `bd:subir` também aplica migrações locais automaticamente. Não use `bd:recriar` para retomar: esse comando apaga os dados locais e exige `--confirmar`.
+
+## Validar
+
+```powershell
+npm run verificar
+npm run bd:subir
+npm run test:e2e
+npm run build
+```
+
+`verificar` executa lint, tipos, testes unitários/integração e varredura dos arquivos de trabalho (incluindo novos). Os testes de integração criam PostgreSQL descartável com credenciais aleatórias; aplicam as migrações do zero e verificam permissões.
+
+O E2E usa Microsoft Edge instalado, porta 3100, pasta `.next-e2e` e recria apenas o banco `nexakeep_e2e` no cluster local. Exercita convite, MFA, sessão e redefinição de senha. Não armazene dados manuais nesse banco. Os resultados e traces ficam fora do Git; podem conter dados fictícios e tokens de teste.
+
+Há workflow de CI em `.github/workflows/verificar.yml` para a mesma validação em Windows. A existência do arquivo não significa execução aprovada no GitHub; consultar o checkpoint para resultados efetivamente obtidos.
+
+## Produto e decisões
+
+- [Plano e custos](docs/PLANO.md)
+- [Arquitetura e isolamento](docs/ARQUITETURA.md)
+- [Tarefas e critérios de aceite](docs/TAREFAS.md)
+- [CRM](docs/CRM.md)
+- [Oferta comercial proposta](docs/OFERTA.md)
+- [WhatsApp — decisão reaberta para número único](docs/WHATSAPP.md)
+- [Auditoria da base anterior](docs/BASE-ANTERIOR.md)
+- [Fontes](docs/FONTES.md)
+
+O repositório é público. Credenciais, inventários privados e dados de clientes devem permanecer fora do Git. Produção, compras e integrações pagas não são ativadas pelos comandos acima.

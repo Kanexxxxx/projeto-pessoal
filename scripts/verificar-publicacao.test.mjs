@@ -1,10 +1,39 @@
 // Amostras montadas por concatenação: o arquivo de teste não pode, ele mesmo,
 // conter um segredo ou telefone real em texto corrido.
-import { test } from 'node:test';
+import { test } from 'vitest';
 import assert from 'node:assert/strict';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, join, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { verificarTexto, verificarCaminho } from './verificar-publicacao.mjs';
 
 const bloqueia = (texto) => verificarTexto('amostra.ts', texto).length > 0;
+
+test('varredura de trabalho examina arquivos novos e alterações ainda fora do índice', () => {
+  const pasta = mkdtempSync(join(tmpdir(), 'nexakeep-publicacao-'));
+  const script = fileURLToPath(new URL('./verificar-publicacao.mjs', import.meta.url));
+  const verificar = () => spawnSync(process.execPath, [script, '--trabalho'], { cwd: pasta, encoding: 'utf8' });
+  try {
+    execFileSync('git', ['init', '--quiet'], { cwd: pasta });
+    writeFileSync(join(pasta, '.gitignore'), '.env.local\n');
+    writeFileSync(join(pasta, 'existente.txt'), 'conteúdo público\n');
+    execFileSync('git', ['add', '.'], { cwd: pasta });
+    const chaveFalsa = 'gh' + 'p_' + 'a1B2'.repeat(10);
+    writeFileSync(join(pasta, '.env.local'), chaveFalsa);
+    assert.equal(verificar().status, 0, 'arquivo privado ignorado não entra na lista');
+    writeFileSync(join(pasta, 'novo.txt'), chaveFalsa);
+    assert.equal(verificar().status, 1, 'segredo falso em arquivo não rastreado bloqueia');
+    writeFileSync(join(pasta, 'novo.txt'), 'público');
+    writeFileSync(join(pasta, 'existente.txt'), chaveFalsa);
+    assert.equal(verificar().status, 1, 'alteração fora do índice também bloqueia');
+  } finally {
+    const alvo = resolve(pasta);
+    assert.ok(alvo.startsWith(resolve(tmpdir()) + sep) && basename(alvo).startsWith('nexakeep-publicacao-'));
+    rmSync(alvo, { recursive: true, force: true });
+  }
+});
 
 test('bloqueia segredos de alta confiança', () => {
   assert.ok(bloqueia('const t = "' + 'gh' + 'p_' + 'a1B2'.repeat(10) + '"'));
@@ -22,6 +51,15 @@ test('bloqueia dados pessoais com cara de reais', () => {
   assert.ok(bloqueia('cliente@' + 'gmail.com'));
   // CPF com dígitos verificadores válidos (gerado para o teste).
   assert.ok(bloqueia('cpf ' + '529.982.' + '247-25'));
+  // Telefone colado em outros dígitos, como dentro de um BR Code PIX.
+  assert.ok(bloqueia('0014' + 'br.gov.bcb' + '.pix0114' + '+55' + '16' + '988887777' + '5204000053039865406'));
+  assert.ok(bloqueia('x' + '+55' + '18' + '99999' + '0000' + '5204'));
+  // Qualquer payload PIX sem a marca de fictício.
+  assert.ok(bloqueia('"texto": "000201' + '26330014br.gov' + '.bcb.pix0111' + '00000000000"'));
+});
+
+test('aceita telefone internacional com DDD fictício', () => {
+  assert.equal(bloqueia('+55' + '20' + '999990001'), false);
 });
 
 test('aceita dados fictícios convencionados', () => {
