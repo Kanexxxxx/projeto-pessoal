@@ -1,12 +1,12 @@
 # Oferta, custos e termos — proposta da T02
 
-Revisão de 15/10/2026. **Proposta para aceite do titular.** Nada aqui vale como contrato antes do aceite e da revisão fiscal/jurídica indicada na §8. Complementa o [PLANO.md](PLANO.md) com os custos reais levantados na T01 e na T14.
+Revisão de 16/10/2026. **Proposta para aceite comercial do titular.** Desenvolvimento e testes continuam em localhost; hospedagem será renovada depois pelo titular. A pesquisa de fornecedores está em [FORNECEDORES.md](FORNECEDORES.md); a recomendação de um número WhatsApp central para todas as lojas está em [WHATSAPP.md](WHATSAPP.md), aguardando decisão do titular. Nada aqui vale como contrato antes do aceite e da revisão fiscal/jurídica indicada na §8.
 
 ## 1. O que o titular precisa decidir
 
 - [ ] Planos, escopo e limites da §2 (ou ajustes).
 - [ ] Onde hospedar o piloto e em qual ciclo de cobrança (§3). Qualquer contratação é compra e depende de autorização.
-- [ ] Ligar a renovação de nexakeep.site (vence em julho/2027, renovação R$203,08).
+- [x] Manter nexakeep.site como domínio provisório, com renovação automática desligada conforme orientação do titular em 16/10. Reavaliar antes do vencimento, sem mudança automática.
 - [ ] Prazos de cobrança, suspensão e encerramento da §5.
 - [ ] Preço e condições dos módulos opcionais da §6.
 - [ ] Levar as perguntas da §8 a um contador e, para o WhatsApp, a orientação jurídica.
@@ -89,7 +89,7 @@ Não entram nesta conta: as horas já investidas na plataforma, tarifas do meio 
 ## 6. Módulos opcionais (preço a definir)
 
 - **Domínio próprio:** titular é a loja e ela paga a renovação; a Nexakeep cobra só a configuração. Se a loja quiser parcelar, adicional explícito de (renovação anual ÷ 12) + margem. Acompanhar renovação a 60, 30 e 7 dias.
-- **WhatsApp automático (caminho B de [WHATSAPP.md](WHATSAPP.md)):** só depois dos portões daquele documento. Mensagens cobradas pela Meta na WABA da própria loja (≈ R$0,035 por mensagem de utilidade ou atendimento desde 01/10/2026); a Nexakeep cobraria configuração e eventual taxa mensal do módulo.
+- **WhatsApp automático:** número central da plataforma recomendado em [WHATSAPP.md](WHATSAPP.md), aguardando decisão do titular. No número central, orçamento e franquia da Meta pertencem ao canal compartilhado, com contabilização por loja; em canais próprios, a cobrança depende da conta contratada. Não prometer franquia individual por loja nem inserir automação no plano básico antes de comprovar elegibilidade e medir custos.
 - **IA:** desligada por padrão. Quando houver, franquia mensal com teto por loja e reserva atômica de orçamento (ARQUITETURA.md §10); ao esgotar, volta ao fluxo sem IA e avisa a dona.
 
 ## 7. Atendimento e saída

@@ -2,16 +2,29 @@
 
 ## Estado atual
 
-Atualizado em 15/10/2026 pela sessão do Claude Code (ver "Registro de execução" abaixo).
+Atualizado em 16/10/2026, 15h40, pelo Claude Code, depois de conferir o trabalho que o Codex fez enquanto o limite do Claude recarregava. **Leia primeiro o checkpoint abaixo; os registros de 15/10 são históricos.**
+
+### Checkpoint de retomada — 16/10/2026, 15h40
+
+- **Ambiente autorizado:** tudo em localhost, com lojas e pessoas fictícias. Hospedagem será renovada depois pelo titular; `nexakeep.site` segue provisório, sem mexer na renovação. Nenhuma compra nem alteração de produção.
+- **Correções de produto do titular (16/10):** (1) WhatsApp com **um número da plataforma para todas as lojas**, sem um app por loja; (2) exclusão = o cliente pedir para apagar uma foto/mensagem ou todos os seus dados (não é cancelar agendamento, que segue o fluxo da loja).
+- **T05 — concluída nesta sessão** (registro abaixo). O Codex implementou as correções que a revisão apontou (marca `mfaVerificado` na sessão, consumo único do código TOTP no banco, sessões anteriores derrubadas ao ativar o 2FA, limites na configuração, auditoria só após o login, rotação de segredos `BETTER_AUTH_SECRETS`, recuperação administrativa de MFA, CI). Conferido por leitura e por execução; o Claude acrescentou os testes de rotação e de regeneração que faltavam. 78 testes, E2E e build passaram.
+- **T14 — revista** em [WHATSAPP.md](WHATSAPP.md): modelo recomendado é o número central com identidade "plataforma · loja"; aguarda decisões do titular (§6 daquele documento).
+- **Pesquisa de fornecedores** consolidada em [FORNECEDORES.md](FORNECEDORES.md).
+- **Workflows do Claude de 16/10:** o crítico de completude da T05 entregou relatório (insumo das correções acima); os demais agentes pararam por limite e não deixaram resultado. Os checkpoints do Codex em [execucao/](execucao/) supriram as duas pesquisas.
+- **Próxima ação exata:** T06 — lojas, papéis e isolamento (tabelas `lojas`, `membros_loja` e tabelas da loja com RLS forçada e chaves compostas com `tenant_id`; testes negativos de troca de id, funcionário revogado, exportação).
+- **Regra de passagem:** atualizar este checkpoint após cada resultado relevante; cada agente atualiza seu próprio arquivo em `docs/execucao/`. Registrar teste realmente executado, resultado e próximo comando.
+
+### Estado anterior (15/10; consultar checkpoint acima)
 
 - Repositório: <https://github.com/Kanexxxxx/projeto-pessoal> (**público**).
 - Domínio informado: nexakeep.site, Hostinger — ativo, renovação automática **desligada**.
-- Tarefas concluídas: **T01**, **T03** ([BASE-ANTERIOR.md](BASE-ANTERIOR.md)), **T14** ([WHATSAPP.md](WHATSAPP.md)). Preparada, aguardando aceite: **T02** ([OFERTA.md](OFERTA.md)). Em andamento: T05.
-- Aplicação: ainda não implementada.
+- Tarefas concluídas: **T01**, **T03** ([BASE-ANTERIOR.md](BASE-ANTERIOR.md)), **T05** (fundação local). **T14** revista em 16/10 para número central ([WHATSAPP.md](WHATSAPP.md)), aguardando decisões do titular. Preparada, aguardando aceite: **T02** ([OFERTA.md](OFERTA.md)).
+- Aplicação: fundação local (acesso do operador com MFA) pronta; lojas, agenda e CRM ainda pendentes.
 - Infraestrutura: **não há VPS ativa** na conta Hostinger consultada; a única VPS (de outro projeto) está suspensa após vencimento. Não há e-mail nem hospedagem web contratados. Detalhes no inventário privado (`privado/INVENTARIO-T01.md`, fora do Git).
 - Produção, DNS, e-mail, pagamentos e banco: **não alterados**. Todas as consultas foram de leitura.
 - Banco proposto: PostgreSQL próprio. A base anterior usa o Supabase só como PostgreSQL hospedado (sem Auth, Storage, Realtime, Edge Functions ou policies), então não há serviço do Supabase a substituir.
-- WhatsApp: plataforma central com um canal próprio por loja; preferir número existente quando houver integração oficial elegível. Decisão da T14 em [WHATSAPP.md](WHATSAPP.md): API bloqueada para o número existente (Coexistence exige parceiro; Tech Provider exige CNPJ/MEI); modo inicial manual; piloto com número novo da loja só após os portões de WHATSAPP.md §5.
+- WhatsApp: decisão da T14 reaberta em 16/10 pelo pedido de número único. Consultar [WHATSAPP.md](WHATSAPP.md) e o checkpoint da pesquisa antes de usar as conclusões antigas, inclusive preços.
 - Serviços que exigirem CNPJ no uso pretendido: fora do escopo atual.
 - Trava de publicação ativa: `scripts/verificar-publicacao.mjs` roda no pre-commit (`.githooks/`). Ao clonar de novo, executar `git config core.hooksPath .githooks`.
 
@@ -21,9 +34,9 @@ Abra ou clone o repositório informado e use o Codex na pasta dele. O contexto d
 
 Prompt de partida:
 
-> Continue o projeto https://github.com/Kanexxxxx/projeto-pessoal no VS Code. Leia README.md e os documentos de plano, arquitetura, tarefas e continuidade em docs/. O domínio provisório é nexakeep.site. Comece pela T01, avance conforme as dependências e implemente uma etapa por vez, reaproveitando a base existente após auditoria. Use os plugins e skills pertinentes disponíveis. A arquitetura deve conectar um WhatsApp próprio de cada loja à plataforma central, preferindo números existentes por integração oficial elegível. Não adote serviços que exijam CNPJ no uso pretendido nem presuma essa elegibilidade. Siga as regras documentadas de isolamento entre lojas, exclusão de dados, backups e limites de custos. Desenvolva e teste localmente; compras e alterações em produção precisam de autorização específica. Mantenha segredos e dados de clientes fora do Git. Ao concluir cada etapa, registre o que mudou, os testes e a próxima ação em docs/CONTINUIDADE.md.
+> Continue o projeto Nexakeep nesta pasta. Leia primeiro docs/CONTINUIDADE.md e os checkpoints em docs/execucao/, depois README.md, TAREFAS.md e ARQUITETURA.md. Confira o diff e preserve o trabalho existente. Retome a próxima ação registrada, sem reiniciar T01. Desenvolva e teste em localhost; mantenha nexakeep.site provisório. Estude o número único WhatsApp para várias lojas conforme a correção do titular em 16/10; não presuma nome personalizado por interlocutor, elegibilidade PF ou preços sem evidência. Não adote serviços que exijam CNPJ no uso pretendido. Siga isolamento, exclusão dos dados, backups e limites de custos. Compras e produção exigem autorização específica. Mantenha segredos e dados de clientes fora do Git. Atualize os checkpoints durante o trabalho, não apenas no encerramento, com testes reais e próxima ação exata.
 
-A continuidade solicitada inclui implementação local por etapas, após o inventário e as decisões necessárias. A execução segue as dependências de TAREFAS.md e os critérios de aceite; uma restrição pendente, como a elegibilidade do WhatsApp, não deve ser ignorada nem impedir tarefas independentes. Esta documentação não afirma que código ou testes da aplicação já foram executados.
+A continuidade solicitada inclui implementação local por etapas. A execução segue as dependências de TAREFAS.md e os critérios de aceite; uma restrição pendente, como a elegibilidade do WhatsApp, não deve ser ignorada nem impedir tarefas independentes. Distinguir sempre resultados herdados dos testes executados na sessão atual.
 
 ## Poupar o limite de desenvolvimento
 
@@ -148,6 +161,41 @@ Não incluir senha, API key, token, dump, CPF, telefone de cliente ou log com co
   3. Confirmar a rotação de um token que apareceu em captura de tela (relatório privado, S13).
 - **Próxima ação exata:** T05 — fundação local (Next.js 16.4, PostgreSQL embutido fora do OneDrive, migrações SQL versionadas, papéis de banco, autenticação por biblioteca com MFA do operador, recuperação de senha e testes de sessão).
 - **Ação externa realizada e autorização:** nenhuma. O clone do repositório privado foi feito com a credencial Git já existente na máquina, só para leitura.
+
+### T05 — Fundação local, ambientes e identidade
+
+- **Tarefa:** T05, concluída.
+- **Data e commit:** 15–16/10/2026; commit `feat: fundação local com acesso do operador e MFA (T05)`. Trabalho em três rodadas: Claude (fundação), Codex (correções da revisão, enquanto o limite do Claude recarregava) e Claude (conferência, testes que faltavam e consolidação).
+- **O que foi concluído:**
+  - Next.js 16.4.2, React 19.3, Tailwind 4, TypeScript estrito. Painel em `app.<domínio>`; a plataforma responde no domínio-base.
+  - PostgreSQL 18.4 local sem instalar nada no sistema (binários via npm), dados em `%LOCALAPPDATA%\Nexakeep`, fora do OneDrive e do repositório. Migrações SQL versionadas com hash e trava; migração alterada ou desconhecida é recusada. Papéis separados: dono sem login, migrador, aplicação só com DML e sem `BYPASSRLS`.
+  - Acesso do operador com Better Auth chamado só pelo servidor (nenhuma rota HTTP da biblioteca montada): conta só por convite (72 h, uso único), login, 2FA por aplicativo autenticador com códigos de reserva, redefinição de senha com token no fragmento da URL, limites de tentativa gravados no banco e auditoria.
+  - Correções do Codex sobre a revisão: sessão só vale com a marca `mfaVerificado`; cada código TOTP é consumido uma vez no banco (inclusive em logins simultâneos); ativar o 2FA derruba as sessões anteriores; limites na configuração do 2FA; auditoria de sessão só depois do segundo fator; política de senha aplicada também na redefinição; rotação de segredos (`BETTER_AUTH_SECRETS`); regeneração dos códigos de reserva com senha e código novo; recuperação administrativa local de MFA ([RECUPERACAO-ACESSO.md](RECUPERACAO-ACESSO.md)); CI no GitHub Actions (Windows).
+  - Nesta conferência: testes de rotação de segredos e de regeneração das reservas (`test/integracao/rotacao-reservas.test.ts`), que o Codex tinha deixado pendentes.
+- **Arquivos alterados:** `package.json`, `package-lock.json`, configs (`next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `vitest.config.ts`, `playwright.config.ts`, `postcss.config.mjs`), `.env.example`, `db/migracoes/0001–0004`, `src/` (app, proxy, servidor), `scripts/` (banco local, migração, convite, recuperação de MFA, preparação), `test/`, `.github/workflows/verificar.yml`, `README.md`, `docs/RECUPERACAO-ACESSO.md`, `docs/execucao/`, `AGENTS.md`.
+- **Testes executados e resultados (16/10/2026):** `npm run verificar` → lint sem problemas, `tsc` sem erros, Vitest **78/78** em 13 arquivos (banco descartável por arquivo), varredura de publicação sem achados; `npm run test:e2e` → 1/1 (convite → senha → 2FA → sair → login com código, no Edge do sistema); `npm run build` ok; `npm audit --omit=dev` → 0 vulnerabilidades. Testes de mutação: remover `FOR UPDATE` do convite, ligar o cadastro público, desligar a rotação de segredos e tirar a conferência do TOTP na regeneração — todos fazem testes falharem.
+- **Decisões tomadas e motivo:** rotas HTTP da biblioteca fora do ar (menos superfície; limites próprios no banco); token no fragmento para não cair em log; cache de sessão em cookie desligado para a revogação valer na hora; host lido de `X-Forwarded-Host` antes de `Host` porque o próprio Next usa esse cabeçalho no redirecionamento interno das Server Actions.
+- **Custos/consumo medidos:** nenhum.
+- **Pendências e riscos conhecidos:**
+  1. Em produção (T10), o proxy precisa **sobrescrever** `X-Forwarded-Host` e `X-Real-IP`; sem isso, o host e o IP podem ser forjados.
+  2. O CI só roda depois de um push; ainda não foi executado no GitHub.
+  3. `npm audit` completo aponta 5 itens altos na cadeia de desenvolvimento do ESLint (`braces/micromatch/fast-glob`); não entram no build de produção. Reavaliar quando houver versão compatível.
+  4. E-mail real só na T11 (hoje os e-mails vão para arquivo em `%LOCALAPPDATA%\Nexakeep\emails`).
+  5. A recuperação de MFA não consegue apagar contadores de tentativa sem usuário (são hash); eles expiram sozinhos.
+- **Próxima ação exata:** T06 — tabelas `lojas` e `membros_loja`, papéis dona/funcionário/consumidor, RLS forçada com `app.tenant_id` por transação, chaves compostas com `tenant_id` e testes negativos (troca de id, funcionário revogado, exportação).
+- **Comandos para retomar:** `npm ci --ignore-scripts`, `npm run preparar`, `npm run bd:subir`, `npm run verificar`, `npm run test:e2e`.
+- **Estado do ambiente:** só local. Banco de desenvolvimento em `%LOCALAPPDATA%\Nexakeep\pg-dev`; `.env.local` gerado pelo `npm run preparar`, fora do Git.
+- **Ação externa realizada e autorização:** nenhuma.
+
+### T14 (revisão) — Um número WhatsApp da plataforma para todas as lojas
+
+- **Tarefa:** T14 reaberta e revista a pedido do titular em 16/10/2026; aguarda decisões dele.
+- **O que foi concluído:** pesquisa nas páginas oficiais da Meta (feita pelo Codex e conferida pelo Claude) e reescrita de [WHATSAPP.md](WHATSAPP.md). Recomendação: **número central da plataforma** (modelo A), viável sem CNPJ. O nome no topo da conversa é do número (um só) e a política proíbe se passar por outra empresa; a identidade da loja vai no conteúdo ("Nexakeep · Barbearia do Zé", logotipo nos templates, assistente com nome por loja), como faz a DigAÍ. Um número por loja exige Tech Provider com verificação da empresa (CNPJ/MEI): fica como evolução.
+- **Também registrado:** roteamento sem IA (código da loja no link → histórico verificado → lista de botões → resposta fixa); vínculo da dona/equipe por código de uso único; custos (desde 01/10/2026 a Meta cobra também dentro da janela de 24 h: R$0,035 por mensagem de atendimento/utilidade; 1.000 de atendimento grátis por número por mês, divididas entre as lojas); exclusão a pedido do cliente em ARQUITETURA.md §9; conclusão de §11.
+- **Pesquisa de fornecedores** (e-mail, cobrança, backup, monitor) consolidada em [FORNECEDORES.md](FORNECEDORES.md), base para T10 e T11.
+- **Pendências (decisões do titular, WHATSAPP.md §6):** aprovar o modelo A; nome do número; reaproveitar o chip de teste da base anterior ou chip novo; autorizar a criação do portfólio/app quando os testes locais estiverem prontos.
+- **Próxima ação exata:** seguir com T06; o módulo de WhatsApp (T15) será feito em localhost com provedor simulado.
+- **Ação externa realizada e autorização:** nenhuma (só leitura de páginas públicas).
 
 ## Plugins e acesso
 

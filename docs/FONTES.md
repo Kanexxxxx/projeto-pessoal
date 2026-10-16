@@ -1,5 +1,11 @@
 # Fontes e pendências
-Consulta em 15/10/2026. Preços, funcionalidades, elegibilidade e políticas podem mudar. Os valores de oferta, limites internos e metas de teste são propostas do projeto, não promessas dos fornecedores.
+Revisão em 16/10/2026. Preços, funcionalidades, elegibilidade e políticas podem mudar. Os valores de oferta, limites internos e metas de teste são propostas do projeto, não promessas dos fornecedores. As verificações novas de WhatsApp e fornecedores substituem conclusões antigas conflitantes; consultar os relatórios abaixo.
+
+## Retomada de pesquisa em 16/10/2026
+
+- [WhatsApp](WHATSAPP.md): identidade do número, app central, modelo multiloja, franquia/cobrança e exclusão de mídia; inclui fontes oficiais e divergências entre páginas antigas e atualizadas.
+- [Fornecedores](FORNECEDORES.md): e-mail, cobrança PF, backup externo e monitoramento, com preços, limites e pendências de elegibilidade.
+- [Checkpoints](execucao/): resultados intermediários, pendências e instruções de retomada. Um checkpoint de pesquisa não comprova contratação ou elegibilidade da conta do titular.
 
 ## Infraestrutura e pagamento
 
@@ -46,7 +52,7 @@ Consulta em 15/10/2026. Preços, funcionalidades, elegibilidade e políticas pod
 
 Nenhum remetente foi registrado, nome aprovado, template criado ou mensagem enviada nesta revisão.
 
-As fontes da decisão da T14 (W7–W15: preços oficiais, mudança de 01/10/2026, Coexistence, Tech Provider, limites, Termos da Plataforma, documentos de verificação no Brasil e 360dialog) estão em [WHATSAPP.md §7](WHATSAPP.md#7-fontes-consultadas-em-15102026).
+As fontes atualizadas da T14 (preços oficiais, Coexistence, Tech Provider, limites, Termos da Plataforma, verificação e mídia) estão em [WHATSAPP.md](WHATSAPP.md).
 
 ## IA e limites de programação
 
