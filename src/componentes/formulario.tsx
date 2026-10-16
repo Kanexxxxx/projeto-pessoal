@@ -22,6 +22,42 @@ export function Campo({ rotulo, ajuda, id, ...props }: InputHTMLAttributes<HTMLI
   );
 }
 
+const CAMPO = "rounded-lg border border-(--borda) bg-transparent px-3 py-2.5 text-base outline-none focus-visible:ring-2 focus-visible:ring-(--destaque)";
+
+export function Selecao({
+  rotulo,
+  id,
+  children,
+  ...props
+}: React.SelectHTMLAttributes<HTMLSelectElement> & { rotulo: string; id: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-medium">
+        {rotulo}
+      </label>
+      <select id={id} className={`${CAMPO} bg-(--fundo)`} {...props}>
+        {children}
+      </select>
+    </div>
+  );
+}
+
+export function AreaTexto({ rotulo, ajuda, id, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { rotulo: string; ajuda?: string; id: string }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-medium">
+        {rotulo}
+      </label>
+      <textarea id={id} className={`${CAMPO} min-h-24`} aria-describedby={ajuda ? `${id}-ajuda` : undefined} {...props} />
+      {ajuda ? (
+        <p id={`${id}-ajuda`} className="text-sm text-(--suave)">
+          {ajuda}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 export function Botao({ children, pendente, ...props }: { children: ReactNode; pendente?: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button

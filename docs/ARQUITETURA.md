@@ -1,5 +1,5 @@
 # Arquitetura, segurança e operação
-Proposta de implementação. Nada nesta página foi implantado ou testado neste repositório.
+Proposta de implementação. Em 16/10/2026, parte dela já existe e foi testada **localmente** (nada implantado): endereços por host (§1), papéis de operador, dona e equipe (§2) e isolamento entre lojas com RLS forçada, chaves compostas e testes negativos (§4). O resto continua proposta.
 
 ## 1. Estrutura mínima que pode crescer
 

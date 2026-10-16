@@ -60,7 +60,8 @@ test("operador: convite, 2FA obrigatório, login com código e recuperação de 
   // 1. Convite: o token vem no fragmento e some da barra de endereço.
   await page.goto(await convidar());
   await expect(page.getByText(EMAIL)).toBeVisible();
-  expect(await page.evaluate(() => window.location.hash)).toBe("");
+  // O token sai da barra assim que a página hidrata (pode demorar na 1ª compilação).
+  await expect.poll(() => page.evaluate(() => window.location.hash)).toBe("");
 
   await page.getByLabel("Seu nome").fill("Operadora Teste");
   await page.getByLabel("Crie uma senha").fill(SENHA);
@@ -118,7 +119,8 @@ test("operador: convite, 2FA obrigatório, login com código e recuperação de 
   const link = /http:\/\/app\.localhost:\d+\/redefinir#token=\S+/.exec(email.texto)?.[0];
   expect(link).toBeTruthy();
   await page.goto(link!);
-  expect(await page.evaluate(() => window.location.hash)).toBe("");
+  // O token sai da barra assim que a página hidrata (pode demorar na 1ª compilação).
+  await expect.poll(() => page.evaluate(() => window.location.hash)).toBe("");
   await page.getByLabel("Nova senha", { exact: true }).fill(NOVA_SENHA);
   await page.getByLabel("Repita a nova senha").fill(NOVA_SENHA);
   await page.getByRole("button", { name: "Salvar nova senha" }).click();

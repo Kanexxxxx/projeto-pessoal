@@ -91,6 +91,11 @@ export function lerConfig(env: Record<string, string | undefined>): Config {
   };
 }
 
+/** Endereço público do site de uma loja: https://<slug>.<domínio>. */
+export function urlDaLoja(c: Config, slug: string): string {
+  return `${c.protocolo}://${slug}.${c.dominioBase}`;
+}
+
 let atual: Config | undefined;
 
 /** Configuração do processo, lida na primeira chamada (não no build). */

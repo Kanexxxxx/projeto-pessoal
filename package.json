@@ -22,6 +22,7 @@
     "bd:migrar": "tsx scripts/migrar.ts",
     "bd:recriar": "tsx scripts/bd-local.ts recriar",
     "operador:convidar": "tsx scripts/convidar-operador.ts",
+    "demo:criar": "tsx scripts/demo.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

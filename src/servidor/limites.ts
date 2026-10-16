@@ -22,6 +22,9 @@ export const LIMITES = {
   segundoFatorPorUsuario: { escopo: "2fa:usuario", janelaSegundos: 10 * 60, maximo: 10 },
   configurarSegundoFator: { escopo: "2fa:configurar", janelaSegundos: 15 * 60, maximo: 5 },
   convitePorIp: { escopo: "convite:ip", janelaSegundos: 60 * 60, maximo: 20 },
+  // Site público da loja: contra robô enchendo a agenda.
+  reservaPorIp: { escopo: "reserva:ip", janelaSegundos: 60 * 60, maximo: 10 },
+  reservaPorTelefone: { escopo: "reserva:telefone", janelaSegundos: 24 * 60 * 60, maximo: 4 },
 } satisfies Record<string, RegraLimite>;
 
 export type ResultadoLimite = { permitido: boolean; liberaEm: Date };

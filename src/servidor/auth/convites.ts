@@ -2,6 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { sql, type Kysely } from "kysely";
 import { registrarAuditoria } from "../auditoria";
 import type { BD, Papel } from "../bd/tipos";
+import { definirEscopo } from "../lojas/escopo";
 import type { Auth } from "./instancia";
 import { VALIDADE_CONVITE_HORAS } from "./politicas";
 import { problemaNaSenha } from "./senha";
@@ -68,10 +69,13 @@ export async function criarConvite(
 }
 
 /** Dados de um convite ainda válido, para mostrar na página antes de aceitar. */
-export async function consultarConvite(db: Kysely<BD>, token: string): Promise<{ email: string; papel: Papel } | null> {
+export async function consultarConvite(
+  db: Kysely<BD>,
+  token: string,
+): Promise<{ email: string; papel: Papel; tenant_id: string | null } | null> {
   const convite = await db
     .selectFrom("convites")
-    .select(["email", "papel"])
+    .select(["email", "papel", "tenant_id"])
     .where("token_hash", "=", hashDoToken(token))
     .where("usado_em", "is", null)
     .where("revogado_em", "is", null)
@@ -135,6 +139,8 @@ export async function aceitarConvite(
       if (marcado.numUpdatedRows !== 1n) throw new Error("convite usado por outra requisição");
       if (convite.papel === "operador") {
         await trx.insertInto("operadores").values({ usuario_id: usuario.id }).execute();
+      } else {
+        await vincularNaLoja(trx, convite.tenant_id!, usuario.id, convite.papel);
       }
       await registrarAuditoria(trx, {
         acao: "convite.aceito",
@@ -149,5 +155,56 @@ export async function aceitarConvite(
       throw erro;
     }
     return { ok: true, usuarioId: usuario.id, papel: convite.papel } as const;
+  });
+}
+
+async function vincularNaLoja(trx: Kysely<BD>, tenantId: string, usuarioId: string, papel: "dona" | "funcionario") {
+  await definirEscopo(trx, tenantId);
+  await trx
+    .insertInto("membros_loja")
+    .values({ tenant_id: tenantId, usuario_id: usuarioId, papel })
+    .onConflict((oc) => oc.columns(["tenant_id", "usuario_id"]).doUpdateSet({ papel, revogado_em: null }))
+    .execute();
+}
+
+/**
+ * Convite de loja para quem JÁ tem conta: a pessoa entra com a conta do mesmo
+ * e-mail do convite e confirma. Ter o link e a senha da conta prova as duas
+ * coisas; convite de operador não é aceito por este caminho.
+ */
+export async function aceitarConviteComConta(
+  db: Kysely<BD>,
+  p: { token: string; usuarioId: string },
+): Promise<{ ok: true; tenantId: string } | { ok: false; motivo: "invalido" | "outro_email" }> {
+  return db.transaction().execute(async (trx) => {
+    const convite = await trx
+      .selectFrom("convites")
+      .selectAll()
+      .where("token_hash", "=", hashDoToken(p.token))
+      .where("usado_em", "is", null)
+      .where("revogado_em", "is", null)
+      .where("expira_em", ">", sql<Date>`now()`)
+      .forUpdate()
+      .executeTakeFirst();
+    if (!convite || convite.papel === "operador" || !convite.tenant_id) return { ok: false, motivo: "invalido" } as const;
+    const usuario = await trx.selectFrom("user").select("email").where("id", "=", p.usuarioId).executeTakeFirst();
+    if (!usuario || usuario.email !== convite.email) return { ok: false, motivo: "outro_email" } as const;
+
+    const marcado = await trx
+      .updateTable("convites")
+      .set({ usado_em: sql`now()`, usado_por: p.usuarioId })
+      .where("id", "=", convite.id)
+      .where("usado_em", "is", null)
+      .executeTakeFirst();
+    if (marcado.numUpdatedRows !== 1n) return { ok: false, motivo: "invalido" } as const;
+    await vincularNaLoja(trx, convite.tenant_id, p.usuarioId, convite.papel);
+    await registrarAuditoria(trx, {
+      acao: "convite.aceito",
+      atorUsuarioId: p.usuarioId,
+      tenantId: convite.tenant_id,
+      alvo: convite.id,
+      detalhes: { papel: convite.papel, contaExistente: true },
+    });
+    return { ok: true, tenantId: convite.tenant_id } as const;
   });
 }

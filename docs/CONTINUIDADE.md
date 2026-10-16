@@ -2,9 +2,16 @@
 
 ## Estado atual
 
-Atualizado em 16/10/2026, 15h40, pelo Claude Code, depois de conferir o trabalho que o Codex fez enquanto o limite do Claude recarregava. **Leia primeiro o checkpoint abaixo; os registros de 15/10 são históricos.**
+Atualizado em 16/10/2026, 17h20, pelo Claude Code. **Leia primeiro o checkpoint abaixo; os registros de 15/10 são históricos.**
 
-### Checkpoint de retomada — 16/10/2026, 15h40
+### Checkpoint de retomada — 16/10/2026, 17h20
+
+- **Feito nesta rodada (registro "T06 + T08" abaixo):** lojas com isolamento por RLS, dona e equipe por convite, painel da loja (agenda, serviços, profissionais e horários, bloqueios, site, acessos, exportação), site público por subdomínio em dois modelos visuais e agendamento pelo celular. Demonstração: `npm run demo:criar`. Validação: `npm run verificar` (115 testes), `npm run test:e2e` (2 cenários) e build — todos passaram.
+- **Pedido do titular que motivou a rodada:** ele testou o login e cobrou "o restante do site". A prioridade passou a ser entregar o que dá para testar e vender.
+- **Pendências diretas:** fotos da loja (upload e otimização, T04/T08), e-mail de confirmação ao cliente (T11), exclusão a pedido do cliente (T09), lembretes, CRM do operador (T07).
+- **Próxima ação exata:** T09 — exclusão a pedido do cliente (apagar uma reserva/observação e "apagar tudo" de um cliente numa loja, com registro de exclusões para reaplicar depois de restaurar backup), ou fotos da loja se o titular preferir o visual primeiro.
+
+### Checkpoint anterior — 16/10/2026, 15h40
 
 - **Ambiente autorizado:** tudo em localhost, com lojas e pessoas fictícias. Hospedagem será renovada depois pelo titular; `nexakeep.site` segue provisório, sem mexer na renovação. Nenhuma compra nem alteração de produção.
 - **Correções de produto do titular (16/10):** (1) WhatsApp com **um número da plataforma para todas as lojas**, sem um app por loja; (2) exclusão = o cliente pedir para apagar uma foto/mensagem ou todos os seus dados (não é cancelar agendamento, que segue o fluxo da loja).
@@ -196,6 +203,31 @@ Não incluir senha, API key, token, dump, CPF, telefone de cliente ou log com co
 - **Pendências (decisões do titular, WHATSAPP.md §6):** aprovar o modelo A; nome do número; reaproveitar o chip de teste da base anterior ou chip novo; autorizar a criação do portfólio/app quando os testes locais estiverem prontos.
 - **Próxima ação exata:** seguir com T06; o módulo de WhatsApp (T15) será feito em localhost com provedor simulado.
 - **Ação externa realizada e autorização:** nenhuma (só leitura de páginas públicas).
+
+### T06 + T08 (com os modelos da T04) — Lojas, isolamento, agenda e site
+
+- **Tarefa:** T06 concluída; T08 com o núcleo pronto (falta galeria de fotos); T04 parcial (dois modelos prontos; fotos pendentes).
+- **Data e commit:** 16/10/2026; commit `feat: lojas isoladas, painel da loja, site público e agendamento (T06/T08)`. Checkpoint de trabalho em [execucao/T06-T08.md](execucao/T06-T08.md).
+- **O que foi concluído:**
+  - Banco (`0005_lojas.sql`): `lojas`, `config_loja`, `membros_loja`, `profissionais`, `servicos`, `servicos_profissionais`, `expedientes`, `bloqueios`, `clientes`, `agendamentos`. Toda tabela da loja tem `tenant_id`, chave `(tenant_id, id)`, chaves estrangeiras compostas e RLS **forçada** com `app_tenant()`, definido por transação. `agendamentos_sem_choque` (EXCLUDE) impede dois horários sobrepostos do mesmo profissional; reserva, remarcação e bloqueio passam por uma trava da agenda da loja.
+  - Regras puras em `src/dominio/`: datas no fuso da loja com data canônica, motor de horários (grade em múltiplos do passo, intervalo de limpeza, antecedência, agenda aberta, "sem preferência"), telefone E.164, preço, contraste da cor da marca, link `wa.me`.
+  - Servidor em `src/servidor/lojas/`: acesso conferido no banco a cada página e ação (operador, dona, equipe), convite de dona/equipe (inclusive para quem já tem conta), revogação, catálogo, agenda, bloqueios, dados públicos do site, exportação em JSON. Funcionário só usa a agenda; limites do plano básico (3 profissionais, 2 pessoas da equipe) aplicados no servidor.
+  - Painel: lista de lojas, nova loja, resumo com "primeiros passos", agenda do dia, serviços, profissionais e horários, folgas e bloqueios, site (modelo, cor, textos, WhatsApp, regras), acessos, exportação.
+  - Site público em `<slug>.<domínio>`: modelos "Clássico" e "Contraste", serviços com preço, equipe, horários, contato, aviso de implantação, agendamento em passos (serviço → profissional → dia → horário → dados), confirmação com mensagem pronta para a loja no WhatsApp. Limite de reservas por telefone (e por IP quando o proxy informa o IP) e campo-armadilha contra robôs.
+  - `npm run demo:criar`: duas lojas fictícias (telefones DDD 20).
+- **Defeito encontrado pelos testes e corrigido:** a dona da loja A recebia acesso à B. O escopo de loja definia também o usuário, e a política de leitura da equipe libera "os próprios vínculos em qualquer loja". Agora o escopo de loja zera o usuário e a conferência de acesso filtra pela loja.
+- **Testes executados e resultados (16/10/2026):** `npm run verificar` → lint e tipos sem erros, Vitest **115/115** em 16 arquivos (24 de regras puras; 19 de lojas: sem escopo nada aparece, A × B, mover linha para outra loja, FK cruzada, escopo não vaza no pool, vínculo, mesmo nome sem acesso, revogação, convite com conta existente, funcionário sem gestão, id de outra loja no formulário, exportação, site sem dado de cliente, 4 reservas simultâneas → 1, bloqueio × reserva simultâneos, remarcar/cancelar, loja suspensa), varredura de publicação sem achados; `npm run test:e2e` → 2/2 (operador com 2FA; loja: convite da dona, agenda, cliente agendando pelo site no celular, cancelamento, cookie da dona ausente no subdomínio, outra loja e exportação dela em 404); `next build` ok. Capturas de tela conferidas (desktop e celular) dos dois modelos, do agendamento e do painel.
+- **Decisões tomadas e motivo:** cliente final não tem conta: agenda pelo site, e cancelar/remarcar é com a loja (processo da base anterior, pedido do titular). Pelo painel a equipe pode encaixar fora da grade, mas nunca por cima de outro horário ou bloqueio. Bloqueio com reserva no período é recusado (a dona remarca antes). Sem e-mail ao cliente até a T11; o aviso à loja é o botão de WhatsApp manual (plano básico).
+- **Custos/consumo medidos:** nenhum.
+- **Pendências e riscos conhecidos:**
+  1. Fotos (galeria e logotipo) com upload, otimização e limite do plano; testes de isolamento de arquivos entram junto.
+  2. Exclusão a pedido do cliente (T09) e e-mail de confirmação/lembrete (T11).
+  3. O `next dev` rodando dentro do OneDrive manteve um módulo antigo na memória depois de uma alteração (ação de reserva com erro 500 até reiniciar). Reiniciar o `npm run dev` após atualizar o código (anotado no README).
+  4. Agenda só em visão de dia; visão de semana e relatório ficam para depois.
+- **Próxima ação exata:** T09 (exclusão a pedido do cliente) ou fotos da loja, conforme a prioridade do titular.
+- **Comandos para retomar:** `npm run bd:subir`, `npm run dev`, `npm run demo:criar`, `npm run verificar`, `npm run test:e2e`.
+- **Estado do ambiente:** só local. Banco de desenvolvimento com as migrações 0001–0005 e as duas lojas de demonstração.
+- **Ação externa realizada e autorização:** nenhuma.
 
 ## Plugins e acesso
 

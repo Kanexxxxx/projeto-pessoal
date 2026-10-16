@@ -79,7 +79,132 @@ export interface TabelaLimitesTaxa {
   janela_inicio: Momento;
 }
 
+export type Segmento = "barbearia" | "salao" | "estudio" | "outro";
+export type SituacaoLoja = "implantacao" | "ativa" | "suspensa" | "encerrada";
+export type PapelNaLoja = "dona" | "funcionario";
+export type SituacaoAgendamento = "confirmado" | "cancelado" | "concluido" | "faltou";
+export type ModeloSite = "classico" | "contraste";
+
+export interface TabelaLojas {
+  id: Generated<string>;
+  slug: string;
+  nome: string;
+  segmento: Segmento;
+  situacao: ColumnType<SituacaoLoja, SituacaoLoja | undefined, SituacaoLoja>;
+  fuso: ColumnType<string, string | undefined, string>;
+  criada_em: Generated<Date>;
+  criada_por: string | null;
+}
+
+export interface TabelaConfigLoja {
+  tenant_id: string;
+  modelo: ColumnType<ModeloSite, ModeloSite | undefined, ModeloSite>;
+  cor: ColumnType<string, string | undefined, string>;
+  chamada: string | null;
+  sobre: string | null;
+  endereco: string | null;
+  whatsapp: string | null;
+  instagram: string | null;
+  passo_min: ColumnType<number, number | undefined, number>;
+  intervalo_min: ColumnType<number, number | undefined, number>;
+  antecedencia_min: ColumnType<number, number | undefined, number>;
+  horizonte_dias: ColumnType<number, number | undefined, number>;
+  atualizado_em: Generated<Date>;
+}
+
+export interface TabelaMembrosLoja {
+  tenant_id: string;
+  usuario_id: string;
+  papel: PapelNaLoja;
+  criado_em: Generated<Date>;
+  revogado_em: MomentoOpcional;
+}
+
+export interface TabelaProfissionais {
+  tenant_id: string;
+  id: Generated<string>;
+  nome: string;
+  ativo: ColumnType<boolean, boolean | undefined, boolean>;
+  ordem: ColumnType<number, number | undefined, number>;
+  criado_em: Generated<Date>;
+}
+
+export interface TabelaServicos {
+  tenant_id: string;
+  id: Generated<string>;
+  nome: string;
+  descricao: string | null;
+  duracao_min: number;
+  preco_centavos: number | null;
+  ativo: ColumnType<boolean, boolean | undefined, boolean>;
+  ordem: ColumnType<number, number | undefined, number>;
+  criado_em: Generated<Date>;
+}
+
+export interface TabelaServicosProfissionais {
+  tenant_id: string;
+  servico_id: string;
+  profissional_id: string;
+}
+
+export interface TabelaExpedientes {
+  tenant_id: string;
+  id: Generated<string>;
+  profissional_id: string;
+  dia_semana: number;
+  inicio_min: number;
+  fim_min: number;
+}
+
+export interface TabelaBloqueios {
+  tenant_id: string;
+  id: Generated<string>;
+  profissional_id: string | null;
+  inicio: Momento;
+  fim: Momento;
+  motivo: string | null;
+  criado_em: Generated<Date>;
+  criado_por: string | null;
+}
+
+export interface TabelaClientes {
+  tenant_id: string;
+  id: Generated<string>;
+  nome: string;
+  telefone: string;
+  criado_em: Generated<Date>;
+}
+
+export interface TabelaAgendamentos {
+  tenant_id: string;
+  id: Generated<string>;
+  servico_id: string;
+  profissional_id: string;
+  cliente_id: string;
+  inicio: Momento;
+  fim: Momento;
+  ocupado_ate: Momento;
+  situacao: ColumnType<SituacaoAgendamento, SituacaoAgendamento | undefined, SituacaoAgendamento>;
+  origem: "site" | "painel";
+  preco_centavos: number | null;
+  observacao: string | null;
+  criado_em: Generated<Date>;
+  criado_por: string | null;
+  cancelado_em: MomentoOpcional;
+  cancelado_por: string | null;
+}
+
 export interface BD {
+  lojas: TabelaLojas;
+  config_loja: TabelaConfigLoja;
+  membros_loja: TabelaMembrosLoja;
+  profissionais: TabelaProfissionais;
+  servicos: TabelaServicos;
+  servicos_profissionais: TabelaServicosProfissionais;
+  expedientes: TabelaExpedientes;
+  bloqueios: TabelaBloqueios;
+  clientes: TabelaClientes;
+  agendamentos: TabelaAgendamentos;
   auditoria: TabelaAuditoria;
   user: TabelaUsuario;
   session: TabelaSessao;

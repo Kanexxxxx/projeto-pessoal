@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { contexto } from "./acesso";
 import { ehOperadorAtivo } from "./auth/operadores";
+import { acessoNaLoja, type Acesso, type PapelDeAcesso } from "./lojas/lojas";
 
 /**
  * Guardas de sessão para páginas e ações do painel. O proxy não protege nada
@@ -24,6 +25,30 @@ export async function exigirSessao() {
   const sessao = await sessaoAtual();
   if (!sessao) redirect("/entrar");
   return sessao;
+}
+
+/**
+ * Acesso a uma loja no painel: sessão válida + vínculo ativo (ou operador),
+ * conferidos no banco a cada página. Sem acesso, a loja "não existe" (404),
+ * para ninguém descobrir lojas pelo endereço.
+ */
+export async function exigirAcessoLoja(slug: string, papeis?: PapelDeAcesso[]) {
+  const sessao = await exigirSessao();
+  const acesso = await acessoNaLoja(contexto().db, sessao.user.id, slug);
+  if (!acesso || (papeis && !papeis.includes(acesso.papel))) notFound();
+  if (acesso.papel === "operador" && !sessao.user.twoFactorEnabled) redirect("/seguranca");
+  return { sessao, acesso };
+}
+
+/** Mesma conferência para Server Actions: devolve null em vez de redirecionar. */
+export async function acessoParaAcao(slug: unknown, papeis?: PapelDeAcesso[]): Promise<Acesso | null> {
+  if (typeof slug !== "string") return null;
+  const sessao = await sessaoAtual();
+  if (!sessao) return null;
+  const acesso = await acessoNaLoja(contexto().db, sessao.user.id, slug);
+  if (!acesso || (papeis && !papeis.includes(acesso.papel))) return null;
+  if (acesso.papel === "operador" && !sessao.user.twoFactorEnabled) return null;
+  return acesso;
 }
 
 /** Operador ativo e com segundo fator ligado; quem não é operador não descobre que a página existe. */

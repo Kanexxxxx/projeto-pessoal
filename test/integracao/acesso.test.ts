@@ -65,7 +65,7 @@ describe("convites", () => {
     expect(linha.token_hash.toString("hex")).not.toContain(Buffer.from(token).toString("hex"));
     expect(JSON.stringify(linha)).not.toContain(token);
 
-    expect(await consultarConvite(banco.db, token)).toEqual({ email: "op2@nexakeep.test", papel: "operador" });
+    expect(await consultarConvite(banco.db, token)).toEqual({ email: "op2@nexakeep.test", papel: "operador", tenant_id: null });
     expect((await aceitarConvite(c.auth, banco.db, { token, nome: "Op Dois", senha: SENHA, marca: "Nexakeep" })).ok).toBe(true);
     expect(await aceitarConvite(c.auth, banco.db, { token, nome: "Op Dois", senha: SENHA, marca: "Nexakeep" })).toEqual({ ok: false, motivo: "invalido" });
 
