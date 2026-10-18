@@ -5,7 +5,7 @@ import { lerConfig, lerExpedientes, lerProfissionais, lerServicos, type Config, 
 import { comLoja } from "./escopo";
 import { lojaPorSlug, type Loja } from "./lojas";
 
-export type HorarioDoDia = { dia: number; faixas: string[] };
+export type HorarioDoDia = { dia: number; faixas: string[]; intervalos: { inicioMin: number; fimMin: number }[] };
 
 export type DadosSite = {
   loja: Loja;
@@ -26,7 +26,11 @@ export function horarioDeFuncionamento(turnos: { diaSemana: number; inicioMin: n
       if (ultimo && t.inicioMin <= ultimo.fim) ultimo.fim = Math.max(ultimo.fim, t.fimMin);
       else juntos.push({ inicio: t.inicioMin, fim: t.fimMin });
     }
-    dias.push({ dia, faixas: juntos.map((j) => `${rotuloDeMinutos(j.inicio)}–${rotuloDeMinutos(j.fim)}`) });
+    dias.push({
+      dia,
+      faixas: juntos.map((j) => `${rotuloDeMinutos(j.inicio)}–${rotuloDeMinutos(j.fim)}`),
+      intervalos: juntos.map((j) => ({ inicioMin: j.inicio, fimMin: j.fim })),
+    });
   }
   return dias;
 }

@@ -241,7 +241,7 @@ export async function salvarExpediente(db: Kysely<BD>, acesso: Acesso, form: For
   );
 }
 
-const MODELOS: ModeloSite[] = ["classico", "contraste"];
+const MODELOS: ModeloSite[] = ["letreiro", "revista", "paleta"];
 
 /** Conteúdo do site e regras da agenda. */
 export async function salvarSite(db: Kysely<BD>, acesso: Acesso, form: FormData): Promise<Resultado> {

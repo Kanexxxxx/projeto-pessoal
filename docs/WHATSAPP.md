@@ -1,4 +1,44 @@
-# WhatsApp — um número da plataforma para todas as lojas
+# WhatsApp — número da loja, mensagens da plataforma
+
+## Decisão de 17/10/2026 (vale sobre o resto deste documento)
+
+O titular **reprovou o modelo A** (número central da plataforma) e escolheu o modelo que a DigAÍ usa. No exemplo que ele mostrou, a conversa é com o número da empresa contratante, com o nome e o selo de verificado dela no topo; quem envia as mensagens é a plataforma DigAÍ. Para a Nexakeep, isso quer dizer:
+
+- **cada loja usa o próprio número** (inclusive o que já usa no app WhatsApp Business), com o nome da loja no topo da conversa;
+- **a plataforma envia e recebe** as mensagens por um app central, sem um app por loja;
+- **cada loja paga à Meta as próprias mensagens**, com o cartão dela, e tem a própria franquia de 1.000 mensagens de atendimento grátis por mês.
+
+É a alternativa B da tabela abaixo. Fatos oficiais (página "Como se tornar um Provedor de Tecnologia", atualizada em 20/08/2026, [W9]):
+
+| Requisito | O que pede |
+|---|---|
+| Verificação da empresa da plataforma | Nome, endereço, telefone, e-mail e site; documentos se a Meta não achar a empresa. Fontes de terceiros indicam que, no Brasil, os documentos aceitos são de empresa (cartão CNPJ, certificado MEI, contrato social, extrato bancário da empresa) e que documento pessoal é recusado — confirmar na Central de Ajuda da Meta antes de começar. |
+| Análise do App | Dois vídeos: uma mensagem enviada pelo app e recebida no WhatsApp; a criação de um modelo de mensagem. Concede o acesso avançado a `whatsapp_business_messaging` e `whatsapp_business_management`. |
+| Cadastro Incorporado | A loja conecta o número dela à plataforma em poucos passos; o número já usado no app WhatsApp Business pode ser conectado sem trocar de número ("Coexistência"). |
+| Cobrança | "Os clientes integrados devem adicionar um cartão de crédito" à própria conta: cada loja paga as próprias mensagens. |
+
+**Consequência:** o modelo da DigAÍ exige que a plataforma seja verificada como empresa, o que na prática pede CNPJ (um MEI serve, segundo as mesmas fontes). Isso contraria a regra inicial "serviços que exigem CNPJ estão fora do escopo", então a decisão é do titular: abrir um MEI (gratuito para abrir; há contribuição mensal, e a atividade precisa ser permitida — confirmar com o contador) ou adiar o WhatsApp automático.
+
+**Plano em fases:**
+
+1. **Agora, sem CNPJ:**
+   - construir o módulo com conexão **por loja** (identificador do número e da conta de cada loja, credenciais cifradas por loja);
+   - testar em localhost com o provedor simulado;
+   - testar o envio real com o número reserva num app em modo de desenvolvimento, que só fala com números de teste cadastrados no próprio app.
+2. **Com MEI/CNPJ:**
+   - fazer a verificação da empresa e a Análise do App;
+   - ligar o Cadastro Incorporado para as lojas conectarem o próprio número (com Coexistência para quem já usa o app WhatsApp Business).
+3. **A loja da base anterior (Karol):** o número dela já está ligado ao app da própria conta Meta dela. Ela pode ser a primeira loja conectada com as credenciais da própria conta, sem depender da fase 2, porque o app e o número são dela.
+
+O selo de verificado ao lado do nome é outra coisa: é da loja, não da plataforma, e não é necessário para funcionar.
+
+Os números escolhidos para os testes ficam só no inventário privado (`privado/`, fora do Git).
+
+O texto abaixo é a análise de 16/10 e fica como histórico.
+
+---
+
+## Análise de 16/10/2026 — um número da plataforma para todas as lojas (reprovado em 17/10)
 
 Revisão de 16/10/2026, a partir da correção do titular: **não** criar um app Meta e um número para cada loja; usar **um número da plataforma** que atende os clientes de todas as lojas, sabe a qual loja cada conversa pertence, distingue cliente de dona/funcionário e mostra a identidade da loja. Esta revisão substitui a decisão de 15/10 ("um canal por loja"). Preços e regras mudam: conferir de novo antes de vender o módulo.
 

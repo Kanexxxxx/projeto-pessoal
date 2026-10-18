@@ -1,10 +1,22 @@
 # Continuidade no Codex e no Claude
 
+Este repositório é só da **Nexakeep** (sites e agendamento para lojas). O projeto de afiliados **Vitraya** (SHEIN, Shopee, Mercado Livre, Linktree, WhatsApp) é outro projeto, com pasta, repositório e documentação próprios: `Desktop\VitrayaStudio` (aplicativo) e `Desktop\VITRAYA` (automação no Power Automate). Pedidos sobre afiliados não se registram aqui. Separação feita em 18/10/2026; o histórico que estava nesta pasta foi para `VitrayaStudio/docs/historico/`.
+
 ## Estado atual
 
-Atualizado em 16/10/2026, 17h20, pelo Claude Code. **Leia primeiro o checkpoint abaixo; os registros de 15/10 são históricos.**
+Atualizado em 17/10/2026, 20h30, pelo Claude Code. **Leia primeiro o checkpoint abaixo; os registros de 15/10 são históricos.**
 
-### Checkpoint de retomada — 16/10/2026, 17h20
+### Checkpoint de retomada — 17/10/2026, 20h30
+
+- **Foco único do titular (17/10):** os sites das lojas. Os modelos "Clássico" e "Contraste" foram reprovados por ele ("genéricos"). Uma coisa por vez, até ficar bom; depois a próxima tarefa. Detalhes e histórico no checkpoint [execucao/SITES-DESIGN.md](execucao/SITES-DESIGN.md).
+- **Feito:** três modelos novos, cada um com arquitetura própria — **Letreiro** (barbearia: a parede com o quadro de preços e a placa ABERTO/FECHADO), **Revista** (salão: ordem de revista, com a agenda como página 2) e **Paleta** (estúdio: a cartela de tampas é a capa, sem JavaScript). Sistema de design em [../DESIGN.md](../DESIGN.md). Migração `0006_modelos_site.sql`; vitrine com horários reais (`horariosDaVitrine`: por serviço, por profissional e por dia); agendamento com aviso de horário que saiu da agenda; juiz objetivo `scripts/inspecionar-sites.mjs` com teste de mutação.
+- **Avaliação independente:** rodada 1 reprovou os três (7,2 / 6,5 / 6,2). Rodada 2: Letreiro **passou (8,2)**, Revista 7,7 e Paleta 7,9. Rodada 3 (a última) feita com as correções apontadas; **avaliação da rodada 3 pendente**. Régua: nota ≥ 8 em todos os critérios; no máximo 3 rodadas; a decisão final é do titular. Detalhes em [execucao/SITES-DESIGN.md](execucao/SITES-DESIGN.md).
+- **Validação da rodada 2:** inspeção 0 falha (4 lojas × início e agendamento × 1440/834/390 × reduzir movimento, e a `teste-limites` nos 3 modelos); `npm run verificar` 128 testes; `npm run test:e2e` 2/2.
+- **WhatsApp:** o modelo central (número da plataforma) foi reprovado; decisão de 17/10 em [WHATSAPP.md](WHATSAPP.md) — modelo DigAÍ (número da própria loja, mensagens enviadas pela plataforma como Tech Provider da Meta). Números de teste só no inventário privado.
+- **Ferramentas:** ECC 2.2.3 conferido e simulado (`--dry-run`); a instalação mexe em `~/.claude` e fica para o titular (comando no checkpoint dos sites). Taste Skill lida da fonte e aplicada como regras no DESIGN.md; não instalada pelo mesmo motivo.
+- **Próxima ação exata:** avaliação independente da rodada 3 (mesmo avaliador, mesmas lojas e larguras); registrar as notas aqui e no checkpoint dos sites; depois, commit e envio ao GitHub (ramo `implementacao`). O que não passar vai para a decisão do titular, com a lista do avaliador.
+
+### Checkpoint anterior — 16/10/2026, 17h20
 
 - **Feito nesta rodada (registro "T06 + T08" abaixo):** lojas com isolamento por RLS, dona e equipe por convite, painel da loja (agenda, serviços, profissionais e horários, bloqueios, site, acessos, exportação), site público por subdomínio em dois modelos visuais e agendamento pelo celular. Demonstração: `npm run demo:criar`. Validação: `npm run verificar` (115 testes), `npm run test:e2e` (2 cenários) e build — todos passaram.
 - **Pedido do titular que motivou a rodada:** ele testou o login e cobrou "o restante do site". A prioridade passou a ser entregar o que dá para testar e vender.

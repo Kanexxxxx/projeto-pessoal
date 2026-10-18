@@ -1,0 +1,69 @@
+/*
+ * Revista — movimento (DESIGN.md §2).
+ * A capa "imprime" em sequência: cada palavra do título sobe com atraso
+ * escalonado, depois as chamadas. Só transform e opacity.
+ */
+.palavra {
+  display: inline-block;
+  animation: subir 0.9s cubic-bezier(0.16, 0.8, 0.24, 1) both;
+  animation-delay: calc(120ms + var(--ordem, 0) * 90ms);
+}
+
+.chamada {
+  animation: subir 0.8s cubic-bezier(0.16, 0.8, 0.24, 1) both;
+  animation-delay: calc(420ms + var(--ordem, 0) * 80ms);
+}
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+}
+
+/* Linha do índice: o preço "corre" para a esquerda no passar do mouse. */
+.linha .preco {
+  transition: transform 220ms ease-out;
+}
+
+.linha:hover .preco,
+.linha:focus-visible .preco {
+  transform: translateX(-6px);
+}
+
+/*
+ * Celular: barra fixa de reserva. Onde há animação por rolagem, ela só entra
+ * quando a capa (que já tem os horários) sai da tela; até lá fica escondida
+ * também para o teclado (visibility). Sem esse recurso, fica sempre visível.
+ */
+@media (max-width: 767px) {
+  :global(html):has(.barraFixa) {
+    scroll-padding-bottom: 5.5rem;
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .barraFixa {
+    animation: aparecer linear both;
+    animation-timeline: scroll(root);
+    animation-range: 60vh 85vh;
+  }
+}
+
+@keyframes aparecer {
+  from {
+    transform: translateY(100%);
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .palavra,
+  .chamada,
+  .barraFixa {
+    animation: none !important;
+  }
+  .linha .preco {
+    transition: none;
+  }
+}

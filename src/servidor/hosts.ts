@@ -83,6 +83,16 @@ export function resolverHost(host: string | null | undefined, dominioBase: strin
  */
 export function caminhoInterno(destino: Destino, caminho: string): string | null {
   const resto = caminho === "/" ? "" : caminho;
+  // O Next escreve no HTML o endereço interno dos ícones gerados (ex.:
+  // /loja/<slug>/icon). Só esses arquivos, e só da MESMA área, passam direto;
+  // qualquer outro caminho interno continua prefixado e cai em 404 (assim a
+  // mesma página não existe em dois endereços).
+  const prefixo = destino.tipo === "loja" ? `/loja/${destino.slug}` : destino.tipo === "painel" ? "/painel" : "/plataforma";
+  if (destino.tipo !== "desconhecido" && /^\/(icon|apple-icon)(\/|$)/.test(caminho.slice(prefixo.length)) && caminho.startsWith(`${prefixo}/`)) {
+    return caminho;
+  }
+  // Ícone da plataforma (src/app/icon.svg), usado pela apresentação e pelo painel.
+  if (caminho === "/icon.svg" && (destino.tipo === "plataforma" || destino.tipo === "painel")) return caminho;
   switch (destino.tipo) {
     case "plataforma":
       return `/plataforma${resto}`;

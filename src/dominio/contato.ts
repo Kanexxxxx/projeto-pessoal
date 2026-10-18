@@ -71,6 +71,15 @@ export function textoSobre(cor: string): "#ffffff" | "#111111" {
   return contraste(cor, "#ffffff") >= contraste(cor, "#111111") ? "#ffffff" : "#111111";
 }
 
+/** Mistura duas cores "#rrggbb": `peso` é quanto de `cor` entra (0 a 1). Ex.: um tom claro da marca. */
+export function misturar(cor: string, base: string, peso: number): string {
+  const canal = (c: string, i: number) => parseInt(c.slice(i, i + 2), 16);
+  const p = Math.min(1, Math.max(0, peso));
+  return `#${[1, 3, 5]
+    .map((i) => Math.round(canal(cor, i) * p + canal(base, i) * (1 - p)).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
 /** Link wa.me com mensagem pronta (modo manual do plano básico: quem envia é a pessoa). */
 export function linkWhatsApp(e164: string, texto: string): string {
   return `https://wa.me/${e164.replace(/\D/g, "")}?text=${encodeURIComponent(texto)}`;

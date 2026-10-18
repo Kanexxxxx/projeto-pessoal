@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contraste, formatarPreco, interpretarPreco, linkWhatsApp, normalizarTelefoneBR, telefoneLegivel, textoSobre } from "./contato";
+import { contraste, formatarPreco, interpretarPreco, linkWhatsApp, misturar, normalizarTelefoneBR, telefoneLegivel, textoSobre } from "./contato";
 
 // Telefones com DDD 20, não atribuído pela Anatel (dados fictícios).
 describe("telefone", () => {
@@ -47,6 +47,16 @@ describe("cor da marca", () => {
       expect(contraste(cor, "#111111")).toBeGreaterThanOrEqual(4.5);
     }
   });
+});
+
+it("mistura cores para tons claros da marca", () => {
+  expect(misturar("#c2185b", "#ffffff", 0)).toBe("#ffffff");
+  expect(misturar("#c2185b", "#ffffff", 1)).toBe("#c2185b");
+  expect(misturar("#000000", "#ffffff", 0.5)).toBe("#808080");
+  // Texto escuro continua legível sobre o tom claro de qualquer cor da paleta do painel.
+  for (const cor of ["#7a4e2d", "#1f1b16", "#8c2f39", "#c2185b", "#6a1b9a", "#1565c0", "#00695c", "#2e7d32", "#b8860b"]) {
+    expect(contraste("#6e5468", misturar(cor, "#ffffff", 0.08))).toBeGreaterThanOrEqual(4.5);
+  }
 });
 
 it("monta link wa.me com o texto codificado", () => {

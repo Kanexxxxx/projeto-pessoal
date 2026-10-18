@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { estiloDaMarca, siteDaLoja } from "./dados";
+import { siteDaLoja } from "./dados";
 
 export const dynamic = "force-dynamic";
 
@@ -18,20 +18,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function LayoutSiteDaLoja({ children, params }: { children: React.ReactNode; params: Promise<{ slug: string }> }) {
   const site = await siteDaLoja((await params).slug);
   if (!site) notFound();
-  const { loja, config } = site;
-  return (
-    <div style={estiloDaMarca(config.cor, config.modelo)} className="min-h-dvh bg-(--l-fundo) text-(--l-texto)">
-      {loja.situacao === "implantacao" ? (
-        <p className="bg-(--marca) px-4 py-2 text-center text-sm text-(--marca-texto)">Site em preparação — os agendamentos ainda são de teste.</p>
-      ) : null}
-      {loja.situacao === "suspensa" || loja.situacao === "encerrada" ? (
-        <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-3 px-4 text-center">
-          <h1 className="text-2xl font-semibold">{loja.nome}</h1>
-          <p className="text-(--l-suave)">Esta página está indisponível no momento.</p>
-        </main>
-      ) : (
-        children
-      )}
-    </div>
-  );
+  if (site.loja.situacao === "suspensa" || site.loja.situacao === "encerrada") {
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-3 px-4 text-center">
+        <h1 className="text-2xl font-semibold">{site.loja.nome}</h1>
+        <p className="text-(--suave)">Esta página está indisponível no momento.</p>
+      </main>
+    );
+  }
+  return children;
 }

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { sql } from "kysely";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { aceitarConvite, aceitarConviteComConta, criarConvite } from "../../src/servidor/auth/convites";
-import { agendaDoDia, cancelarAgendamento, criarBloqueio, disponibilidade, remarcarAgendamento, reservar } from "../../src/servidor/lojas/agenda";
+import { agendaDoDia, cancelarAgendamento, criarBloqueio, disponibilidade, horariosDaVitrine, remarcarAgendamento, reservar } from "../../src/servidor/lojas/agenda";
 import { salvarExpediente, salvarProfissional, salvarServico, salvarSite } from "../../src/servidor/lojas/catalogo";
 import { comLoja } from "../../src/servidor/lojas/escopo";
 import { convidarParaLoja, revogarAcesso } from "../../src/servidor/lojas/equipe";
@@ -191,7 +191,7 @@ describe("acesso por vínculo", () => {
     const func = await conta("funcionario", A.loja.id);
     const acessoFunc = (await acessoNaLoja(c.db, func.id, A.loja.slug))!;
     expect((await salvarServico(c.db, acessoFunc, form({ nome: "Barba", duracao: "30" }))).ok).toBe(false);
-    expect((await salvarSite(c.db, acessoFunc, form({ modelo: "classico", cor: "#000000" }))).ok).toBe(false);
+    expect((await salvarSite(c.db, acessoFunc, form({ modelo: "revista", cor: "#000000" }))).ok).toBe(false);
 
     // A dona da A tenta editar um serviço da B pelo id: não encontra.
     const r = await salvarServico(c.db, A.op, form({ id: B.servicoId, nome: "Sequestrado", duracao: "30", tenant_id: B.loja.id }));
@@ -307,5 +307,34 @@ describe("agenda", () => {
     await c.db.updateTable("lojas").set({ situacao: "suspensa" }).where("id", "=", L.loja.id).execute();
     const loja = { ...L.loja, situacao: "suspensa" as const };
     expect(await reservar(c.db, pedido(loja, L.servicoId))).toMatchObject({ ok: false, motivo: "indisponivel" });
+    // E a vitrine do site não oferece horário nenhum.
+    const vitrine = await horariosDaVitrine(c.db, loja, { agora: AGORA });
+    expect(vitrine.porServico.size).toBe(0);
+  });
+
+  it("vitrine: os horários mostrados no site são os mesmos que a reserva aceita", async () => {
+    const L = await lojaPronta("Vitrine");
+    const antes = await horariosDaVitrine(c.db, L.loja, { agora: AGORA });
+    // Agora são 09:00 de quarta e a loja pede 2 h de antecedência: o primeiro horário é 11:00.
+    expect(antes.porServico.get(L.servicoId)?.map((v) => `${v.data} ${v.hora}`)).toEqual(["2026-03-04 11:00", "2026-03-04 11:30", "2026-03-04 12:00"]);
+    expect(antes.porProfissional.get(L.profs[0]!.id)).toMatchObject({ data: "2026-03-04", hora: "11:00", servicoId: L.servicoId });
+    // A agenda por dia começa no mesmo horário e espalha até 4 horários pelo dia, do primeiro ao último.
+    expect(antes.porDia[0]?.data).toBe("2026-03-04");
+    const horasDoDia = antes.porDia[0]!.horas.map((h) => h.hora);
+    expect(horasDoDia[0]).toBe("11:00");
+    expect(horasDoDia.length).toBeLessThanOrEqual(4);
+    expect([...horasDoDia].sort()).toEqual(horasDoDia);
+    expect(antes.porDia[0]!.horas[0]!.servicoIds).toContain(L.servicoId);
+    expect(antes.porDia.length).toBeLessThanOrEqual(3);
+    expect(antes.porDia[0]!.livres).toBeGreaterThanOrEqual(antes.porDia[0]!.horas.length);
+    // Reservado com os dois profissionais, o 11:00 (e o 11:30, que cruza) sai da vitrine.
+    for (const telefone of ["(20) 96666-0001", "(20) 96666-0002"]) {
+      expect((await reservar(c.db, pedido(L.loja, L.servicoId, { data: "2026-03-04", hora: "11:00", telefone }))).ok).toBe(true);
+    }
+    const depois = await horariosDaVitrine(c.db, L.loja, { agora: AGORA });
+    expect(depois.porServico.get(L.servicoId)?.[0]).toMatchObject({ data: "2026-03-04", hora: "12:00" });
+    // O primeiro horário da vitrine é aceito pela reserva.
+    const primeiro = depois.porServico.get(L.servicoId)![0]!;
+    expect((await reservar(c.db, pedido(L.loja, L.servicoId, { data: primeiro.data, hora: primeiro.hora, telefone: "(20) 96666-0003" }))).ok).toBe(true);
   });
 });

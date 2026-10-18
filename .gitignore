@@ -53,3 +53,5 @@ desktop.ini
 
 # Teste de navegador
 .next-e2e/
+# Servidor de desenvolvimento do trabalho de design (porta 3200)
+.next-design/

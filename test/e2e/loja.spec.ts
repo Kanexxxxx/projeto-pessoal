@@ -35,7 +35,7 @@ async function prepararLojas(): Promise<{ convite: string; amanha: string }> {
     await criar("Outra Loja E2E", "outra-e2e");
     const acesso: Acesso = { loja, papel: "operador", usuarioId: "e2e" };
     const conferir = (r: { ok: boolean }) => expect(r.ok).toBe(true);
-    conferir(await salvarSite(db, acesso, form({ modelo: "contraste", cor: "#b8860b", chamada: "Chamada de teste", whatsapp: "(20) 98765-4321", passo: "30", intervalo: "0", antecedencia: "0", horizonte: "14" })));
+    conferir(await salvarSite(db, acesso, form({ modelo: "letreiro", cor: "#b8860b", chamada: "Chamada de teste", whatsapp: "(20) 98765-4321", passo: "30", intervalo: "0", antecedencia: "0", horizonte: "14" })));
     conferir(await salvarProfissional(db, acesso, form({ nome: "Rafael" })));
     const prof = await comLoja(db, loja.id, (trx) => trx.selectFrom("profissionais").select("id").executeTakeFirstOrThrow());
     const semana: Record<string, string> = {};
@@ -80,10 +80,10 @@ test("dona configura e atende; cliente agenda pelo site; lojas isoladas", async 
   await site.getByRole("link", { name: /^Corte/ }).click();
   // Só um profissional faz o serviço: vai direto para dia e horário.
   await site.waitForURL(/servico=/);
-  await expect(site.getByRole("heading", { name: /Dia e horário/ })).toBeVisible();
+  await expect(site.getByRole("heading", { name: "Quando?" })).toBeVisible();
   await site.goto(`http://barbearia-e2e.localhost:${PORTA}/agendar?${new URLSearchParams({ servico: new URL(site.url()).searchParams.get("servico")!, data: amanha })}`);
   // 10:00 já está ocupado pelo agendamento do painel.
-  await expect(site.getByLabel("10:00, ocupado")).toBeVisible();
+  await expect(site.getByText(/^10:00\s*ocupado$/)).toBeVisible();
   await site.getByRole("link", { name: "11:00" }).click();
   await site.getByLabel("Seu nome").fill("Cliente do Site");
   await site.getByLabel("Seu WhatsApp").fill("(20) 93333-4444");

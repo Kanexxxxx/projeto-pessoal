@@ -1,6 +1,9 @@
 import { FormularioAcao } from "@/componentes/acoes";
 import { AreaTexto, Campo, Selecao } from "@/componentes/formulario";
-import { telefoneLegivel } from "@/dominio/contato";
+import { MODELOS } from "@/app/loja/[slug]/modelos";
+import { TITULO } from "@/app/loja/[slug]/modelos/estilo";
+import { estiloDosTokens } from "@/app/loja/[slug]/modelos/tipos";
+import { telefoneLegivel, textoSobre } from "@/dominio/contato";
 import { contexto } from "@/servidor/acesso";
 import { urlDaLoja } from "@/servidor/config";
 import { lerConfig } from "@/servidor/lojas/catalogo";
@@ -10,7 +13,7 @@ import { salvarSiteAcao } from "../../acoes";
 
 export const dynamic = "force-dynamic";
 
-const CORES = ["#7a4e2d", "#1f1b16", "#8c2f39", "#c2185b", "#6a1b9a", "#1565c0", "#00695c", "#2e7d32", "#b8860b"];
+const CORES = ["#b3202a", "#7a4e2d", "#1f1b16", "#8c2f39", "#c2185b", "#6a1b9a", "#1565c0", "#00695c", "#2e7d32", "#b8860b"];
 
 export default async function PaginaSite({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -26,19 +29,30 @@ export default async function PaginaSite({ params }: { params: Promise<{ slug: s
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">Aparência</h2>
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-medium">Modelo</legend>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { valor: "classico", nome: "Clássico", desc: "Claro, com títulos em serifa. Acolhedor." },
-              { valor: "contraste", nome: "Contraste", desc: "Escuro, letras fortes. Marcante." },
-            ].map((m) => (
-              <label key={m.valor} className="flex cursor-pointer flex-col gap-1 rounded-xl border border-(--borda) p-3 has-checked:border-(--destaque) has-checked:ring-1 has-checked:ring-(--destaque)">
-                <span className="flex items-center gap-2 font-medium">
-                  <input type="radio" name="modelo" value={m.valor} defaultChecked={cfg.modelo === m.valor} className="accent-(--destaque)" />
-                  {m.nome}
-                </span>
-                <span className="text-sm text-(--suave)">{m.desc}</span>
-              </label>
+          <legend className="mb-1 text-sm font-medium">Modelo do site</legend>
+          <div className="flex flex-col gap-3">
+            {Object.values(MODELOS).map((m) => (
+              <div
+                key={m.id}
+                className="flex flex-col gap-2 rounded-xl border border-(--borda) p-4 has-checked:border-(--destaque) has-checked:ring-1 has-checked:ring-(--destaque)"
+              >
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input type="radio" name="modelo" value={m.id} defaultChecked={cfg.modelo === m.id} className="mt-1.5 accent-(--destaque)" />
+                  <span className="flex flex-col gap-1">
+                    {/* O nome aparece na fonte de título do próprio modelo. */}
+                    <span className={`${m.fontes} text-2xl leading-none`} style={estiloDosTokens(m.tokens(cfg.cor, textoSobre(cfg.cor)))}>
+                      <span className={TITULO}>
+                        {m.nome}
+                      </span>
+                    </span>
+                    <span className="text-sm">{m.descricao}</span>
+                    <span className="text-sm text-(--suave)">Pensado para: {m.sugerido.toLowerCase()}.</span>
+                  </span>
+                </label>
+                <a href={`${url}/?modelo=${m.id}`} target="_blank" rel="noreferrer" className="self-start pl-7 text-sm text-(--destaque) underline underline-offset-4">
+                  Ver a loja neste modelo ↗
+                </a>
+              </div>
             ))}
           </div>
         </fieldset>

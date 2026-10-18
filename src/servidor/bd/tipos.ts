@@ -83,7 +83,7 @@ export type Segmento = "barbearia" | "salao" | "estudio" | "outro";
 export type SituacaoLoja = "implantacao" | "ativa" | "suspensa" | "encerrada";
 export type PapelNaLoja = "dona" | "funcionario";
 export type SituacaoAgendamento = "confirmado" | "cancelado" | "concluido" | "faltou";
-export type ModeloSite = "classico" | "contraste";
+export type ModeloSite = "letreiro" | "revista" | "paleta";
 
 export interface TabelaLojas {
   id: Generated<string>;

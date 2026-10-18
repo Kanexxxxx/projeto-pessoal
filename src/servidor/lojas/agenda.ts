@@ -152,6 +152,106 @@ export async function disponibilidade(
   });
 }
 
+export type VagaLivre = { data: string; hora: string; inicio: Date };
+
+export type HorariosVitrine = {
+  /** Próximos horários livres de cada serviço, sem preferência de profissional. */
+  porServico: Map<string, VagaLivre[]>;
+  /** Próximo horário livre de cada profissional, no serviço mais curto que ele faz. */
+  porProfissional: Map<string, (VagaLivre & { servicoId: string }) | null>;
+  /**
+   * Os próximos dias com vaga (até `diasAgenda`), cada um com até 4 horários
+   * espalhados pelo dia e os serviços livres em cada horário.
+   */
+  porDia: { data: string; livres: number; horas: (VagaLivre & { servicoIds: string[] })[] }[];
+};
+
+/**
+ * Horários livres para a página inicial do site (a vitrine), numa transação
+ * só e com a mesma conta da reserva: o que aparece aqui é o que o cliente
+ * consegue agendar. Olha no máximo `diasMax` dias à frente.
+ */
+export async function horariosDaVitrine(
+  db: Kysely<BD>,
+  loja: Loja,
+  p: { agora?: Date; porServico?: number; diasMax?: number; diasAgenda?: number } = {},
+): Promise<HorariosVitrine> {
+  const vazio: HorariosVitrine = { porServico: new Map(), porProfissional: new Map(), porDia: [] };
+  if (!lojaAceitaReservas(loja)) return vazio;
+  const agora = p.agora ?? new Date();
+  const quantos = p.porServico ?? 3;
+  return comLoja(db, loja.id, async (trx) => {
+    const regras = regrasDa(loja, await lerConfig(trx));
+    const dias = Math.min(p.diasMax ?? 14, regras.horizonteDias);
+    const servicos = await trx.selectFrom("servicos").select(["id", "duracao_min"]).where("ativo", "=", true).orderBy("ordem").execute();
+    const vinculos = await trx
+      .selectFrom("servicos_profissionais")
+      .innerJoin("profissionais", (j) =>
+        j.onRef("profissionais.id", "=", "servicos_profissionais.profissional_id").onRef("profissionais.tenant_id", "=", "servicos_profissionais.tenant_id"),
+      )
+      .select(["servicos_profissionais.servico_id", "profissionais.id as profissionalId"])
+      .where("profissionais.ativo", "=", true)
+      .orderBy("profissionais.ordem")
+      .orderBy("profissionais.nome")
+      .execute();
+    const expedientes = await lerExpedientes(trx);
+    const hoje = hojeNoFuso(agora, regras.fuso);
+    const fim = instanteNoFuso(somarDias(hoje, dias + 1), 0, regras.fuso) ?? agora;
+    const ocupacao = await ocupacoes(trx, agora, fim);
+    const datas = Array.from({ length: dias + 1 }, (_, i) => somarDias(hoje, i));
+    const grade = (profissionalId: string, data: string, duracaoMin: number) =>
+      gradeDoProfissional({ profissionalId, data, regras, expedientes, duracaoMin, ocupacao, agora });
+
+    const resultado: HorariosVitrine = { porServico: new Map(), porProfissional: new Map(), porDia: [] };
+    for (const s of servicos) {
+      const profs = vinculos.filter((v) => v.servico_id === s.id).map((v) => v.profissionalId);
+      const livres: VagaLivre[] = [];
+      for (const data of datas) {
+        if (livres.length >= quantos || !profs.length) break;
+        const combinada = gradeCombinada(profs.map((id) => ({ profissionalId: id, vagas: grade(id, data, s.duracao_min) })));
+        for (const v of combinada) {
+          if (v.livre && livres.length < quantos) livres.push({ data, hora: v.rotulo, inicio: v.inicio });
+        }
+      }
+      resultado.porServico.set(s.id, livres);
+    }
+    for (const profissionalId of new Set(vinculos.map((v) => v.profissionalId))) {
+      const seus = servicos.filter((s) => vinculos.some((v) => v.servico_id === s.id && v.profissionalId === profissionalId));
+      const maisCurto = seus.reduce<(typeof seus)[number] | undefined>((a, b) => (!a || b.duracao_min < a.duracao_min ? b : a), undefined);
+      let proxima: (VagaLivre & { servicoId: string }) | null = null;
+      for (const data of maisCurto ? datas : []) {
+        const v = grade(profissionalId, data, maisCurto!.duracao_min).find((x) => x.livre);
+        if (v) {
+          proxima = { data, hora: v.rotulo, inicio: v.inicio, servicoId: maisCurto!.id };
+          break;
+        }
+      }
+      resultado.porProfissional.set(profissionalId, proxima);
+    }
+    // Agenda por dia: todos os horários livres do dia (de qualquer serviço), e
+    // até 4 deles espalhados do primeiro ao último, para mostrar manhã e tarde.
+    for (const data of datas) {
+      if (resultado.porDia.length >= (p.diasAgenda ?? 3)) break;
+      const porHora = new Map<string, VagaLivre & { servicoIds: string[] }>();
+      for (const s of servicos) {
+        const profs = vinculos.filter((v) => v.servico_id === s.id).map((v) => v.profissionalId);
+        if (!profs.length) continue;
+        for (const v of gradeCombinada(profs.map((id) => ({ profissionalId: id, vagas: grade(id, data, s.duracao_min) })))) {
+          if (!v.livre) continue;
+          const h = porHora.get(v.rotulo) ?? { data, hora: v.rotulo, inicio: v.inicio, servicoIds: [] };
+          h.servicoIds.push(s.id);
+          porHora.set(v.rotulo, h);
+        }
+      }
+      const horas = [...porHora.values()].sort((a, b) => a.inicio.getTime() - b.inicio.getTime());
+      if (!horas.length) continue;
+      const escolhidas = horas.length <= 4 ? horas : [...new Set([0, 1, 2, 3].map((k) => Math.round((k * (horas.length - 1)) / 3)))].map((i) => horas[i]!);
+      resultado.porDia.push({ data, livres: horas.length, horas: escolhidas });
+    }
+    return resultado;
+  });
+}
+
 export type Reserva = {
   id: string;
   servico: string;

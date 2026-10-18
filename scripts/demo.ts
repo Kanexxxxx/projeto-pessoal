@@ -12,6 +12,7 @@ import { salvarExpediente, salvarProfissional, salvarServico, salvarSite } from 
 import { comLoja } from "../src/servidor/lojas/escopo";
 import { criarLoja, lojaPorSlug, type Acesso } from "../src/servidor/lojas/lojas";
 import { criarBd, criarPool } from "../src/servidor/bd/conexao";
+import type { ModeloSite } from "../src/servidor/bd/tipos";
 import { lerConfig, urlDaLoja } from "../src/servidor/config";
 
 try {
@@ -44,8 +45,8 @@ const DEMOS: Demo[] = [
     nome: "Barbearia Navalha de Ouro",
     segmento: "barbearia",
     site: {
-      modelo: "contraste",
-      cor: "#b8860b",
+      modelo: "letreiro",
+      cor: "#b3202a",
       chamada: "Corte, barba e toalha quente. Hora marcada, sem fila.",
       sobre: "Barbearia de bairro desde 2015 (loja fictícia de demonstração).\nCafé passado na hora e atendimento sem pressa.",
       endereco: "Rua das Tesouras, 100 — Centro, Cidade Exemplo",
@@ -76,7 +77,7 @@ const DEMOS: Demo[] = [
     nome: "Studio Bella Unhas",
     segmento: "estudio",
     site: {
-      modelo: "classico",
+      modelo: "paleta",
       cor: "#c2185b",
       chamada: "Unhas e sobrancelhas com hora marcada e material esterilizado.",
       sobre: "Estúdio pequeno e tranquilo, com atendimento individual (loja fictícia de demonstração).",
@@ -104,6 +105,41 @@ const DEMOS: Demo[] = [
       { nome: "Design de sobrancelha", duracao: 30, preco: "40" },
     ],
   },
+  {
+    slug: "salao-jasmim",
+    nome: "Salão Jasmim",
+    segmento: "salao",
+    site: {
+      modelo: "revista",
+      cor: "#8c2f39",
+      chamada: "Cabelo, cor e cuidado, com hora marcada.",
+      sobre:
+        "Salão de bairro com três cadeiras e muita conversa (loja fictícia de demonstração).\nA gente gosta de cor bem feita, corte que cresce bonito e de explicar cada etapa antes de começar.",
+      endereco: "Rua das Acácias, 48 — Vila Exemplo",
+      whatsapp: "(20) 93456-7812",
+      instagram: "salaojasmim.demo",
+      passo: "30",
+      intervalo: "15",
+      antecedencia: "120",
+      horizonte: "30",
+    },
+    profissionais: ["Bianca", "Lorena", "Tati"],
+    horario: {
+      2: [["09:00", "19:00"]],
+      3: [["09:00", "19:00"]],
+      4: [["09:00", "19:00"]],
+      5: [["09:00", "20:00"]],
+      6: [["08:00", "16:00"]],
+    },
+    servicos: [
+      { nome: "Corte feminino", duracao: 60, preco: "90" },
+      { nome: "Escova modelada", duracao: 45, preco: "60" },
+      { nome: "Coloração", duracao: 120, preco: "180", descricao: "Raiz ou global, com tinta sem amônia" },
+      { nome: "Mechas", duracao: 180, preco: "320" },
+      { nome: "Hidratação", duracao: 40, preco: "70" },
+      { nome: "Penteado", duracao: 60, preco: "150", descricao: "Para festas e formaturas" },
+    ],
+  },
 ];
 
 function form(campos: Record<string, string | string[]>): FormData {
@@ -121,9 +157,48 @@ try {
     process.exit(1);
   }
 
+  // Agenda de exemplo dos próximos dias: cada dia com um movimento diferente (manhã cheia, tarde cheia,
+  // meio do dia), para o site mostrar uma agenda de loja de verdade, e não dias idênticos. Os agendamentos
+  // levam a observação abaixo; rodar de novo só completa o que faltar.
+  const OBS_EXEMPLO = "Agendamento de exemplo (demonstração)";
+  const MOVIMENTO = [["09:00", "10:00", "11:00"], ["14:00", "15:00", "16:00"], ["10:00", "12:00", "17:00"]];
+  async function agendaDeExemplo(loja: NonNullable<Awaited<ReturnType<typeof lojaPorSlug>>>): Promise<number> {
+    const { jaTem, profs, servico } = await comLoja(db, loja.id, async (trx) => ({
+      jaTem: (await trx.selectFrom("agendamentos").select("id").where("observacao", "=", OBS_EXEMPLO).where("inicio", ">", new Date()).where("situacao", "<>", "cancelado").execute()).length,
+      profs: await trx.selectFrom("profissionais").select("id").where("ativo", "=", true).orderBy("ordem").execute(),
+      servico: await trx.selectFrom("servicos").select("id").where("ativo", "=", true).orderBy("ordem").executeTakeFirst(),
+    }));
+    if (jaTem >= 6 || !servico) return 0;
+    const hoje = hojeNoFuso(new Date(), loja.fuso);
+    let criados = 0;
+    let dia = 0;
+    for (let salto = 1; salto <= 10 && dia < MOVIMENTO.length; salto++) {
+      const data = somarDias(hoje, salto);
+      let noDia = 0;
+      for (const [i, hora] of MOVIMENTO[dia]!.entries()) {
+        // O terceiro dia fica mais leve: só a primeira pessoa tem o horário ocupado.
+        for (const p of dia === 2 && i > 0 ? profs.slice(0, 1) : profs) {
+          const res = await reservar(db, { loja, servicoId: servico.id, profissionalId: p.id, data, hora, nome: `Cliente Exemplo ${criados + 1}`, telefone: `(20) 90000-${String(100 + criados).padStart(4, "0")}`, observacao: OBS_EXEMPLO, origem: "painel" });
+          if (res.ok) {
+            criados++;
+            noDia++;
+          }
+        }
+      }
+      if (noDia) dia++;
+    }
+    return criados;
+  }
+
   for (const demo of DEMOS) {
-    if (await lojaPorSlug(db, demo.slug)) {
-      console.log(`Já existe: ${demo.nome} → ${urlDaLoja(c, demo.slug)}`);
+    const existente = await lojaPorSlug(db, demo.slug);
+    if (existente) {
+      // Mantém o conteúdo e alinha só o modelo e a cor da demonstração.
+      await comLoja(db, existente.id, (trx) =>
+        trx.updateTable("config_loja").set({ modelo: demo.site.modelo as ModeloSite, cor: demo.site.cor! }).execute(),
+      );
+      const novos = await agendaDeExemplo(existente);
+      console.log(`Já existe: ${demo.nome} (modelo ${demo.site.modelo}${novos ? `, +${novos} agendamentos de exemplo` : ""}) → ${urlDaLoja(c, demo.slug)}`);
       continue;
     }
     const r = await criarLoja(db, { nome: demo.nome, slug: demo.slug, segmento: demo.segmento, criadaPor: operador.usuario_id });
@@ -175,6 +250,7 @@ try {
         }
       }
     }
+    criados += await agendaDeExemplo(r.loja);
     console.log(`Criada: ${demo.nome} (${criados} agendamentos de exemplo) → ${urlDaLoja(c, demo.slug)}`);
   }
   console.log(`\nPainel: ${c.urlPainel}`);

@@ -1,7 +1,7 @@
 import type { Kysely, Selectable } from "kysely";
 import { registrarAuditoria } from "../auditoria";
 import { ehOperadorAtivo } from "../auth/operadores";
-import type { BD, PapelNaLoja, Segmento, SituacaoLoja, TabelaLojas } from "../bd/tipos";
+import type { BD, ModeloSite, PapelNaLoja, Segmento, SituacaoLoja, TabelaLojas } from "../bd/tipos";
 import { slugValido } from "../hosts";
 import { comLoja, comUsuario, definirEscopo } from "./escopo";
 
@@ -70,6 +70,9 @@ export async function todasAsLojas(db: Kysely<BD>): Promise<Loja[]> {
   return db.selectFrom("lojas").selectAll().orderBy("criada_em", "desc").execute();
 }
 
+/** Modelo de site com que cada tipo de negócio começa (a dona troca em Site). */
+export const MODELO_INICIAL: Record<Segmento, ModeloSite> = { barbearia: "letreiro", salao: "revista", estudio: "paleta", outro: "revista" };
+
 export const SITUACOES: Record<SituacaoLoja, string> = {
   implantacao: "Em implantação",
   ativa: "No ar",
@@ -128,7 +131,7 @@ export async function criarLoja(
         .returningAll()
         .executeTakeFirstOrThrow();
       await definirEscopo(trx, criada.id);
-      await trx.insertInto("config_loja").values({ tenant_id: criada.id }).execute();
+      await trx.insertInto("config_loja").values({ tenant_id: criada.id, modelo: MODELO_INICIAL[criada.segmento] }).execute();
       await registrarAuditoria(trx, { acao: "loja.criada", atorUsuarioId: p.criadaPor, tenantId: criada.id, alvo: slug });
       return criada;
     });

@@ -1,0 +1,123 @@
+/*
+ * Letreiro — animações (DESIGN.md §1).
+ * O poste é uma faixa de listras diagonais. As listras ficam num ::before
+ * maior que a faixa e deslizam por transform (sem repintar o fundo); o ciclo
+ * é o período das listras na direção do movimento (56px · √2 ≈ 79.196px).
+ */
+/* A posição (relative/absolute) vem de quem usa a faixa. */
+.poste {
+  overflow: hidden;
+  background: #fff;
+}
+
+.poste::before {
+  content: "";
+  position: absolute;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--marca) 0 14px,
+    #ffffff 14px 28px,
+    var(--l-texto) 28px 42px,
+    #ffffff 42px 56px
+  );
+}
+
+/* Vertical (computador): desliza para baixo. */
+.vertical::before {
+  inset: -80px 0 0 0;
+}
+
+/* Loja aberta: o poste gira. Onde há animação por rolagem, ele gira com a
+   rolagem da página (movimento que a pessoa comanda, sem limite de tempo);
+   sem esse recurso, gira duas voltas (~5 s) ao abrir e para — movimento
+   automático acima de 5 s exigiria botão de pausa (WCAG 2.2.2). */
+.vertical.gira::before {
+  animation: descer 2.4s linear 2;
+}
+
+/* Horizontal (celular): desliza para a direita. */
+.horizontal::before {
+  inset: 0 0 0 -80px;
+}
+
+.horizontal.gira::before {
+  animation: andar 2.4s linear 2;
+}
+
+/* Com a rolagem: a faixa listrada é 12 períodos maior e desliza 12 períodos
+   do topo ao fim da página. */
+@supports (animation-timeline: scroll()) {
+  .vertical.gira::before {
+    inset: -960px 0 0 0;
+    animation: descerRolando linear both;
+    animation-timeline: scroll(root);
+  }
+  .horizontal.gira::before {
+    inset: 0 0 0 -960px;
+    animation: andarRolando linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes descerRolando {
+  to {
+    transform: translateY(950.352px);
+  }
+}
+
+@keyframes andarRolando {
+  to {
+    transform: translateX(950.352px);
+  }
+}
+
+/* No celular, a barra fixa de reserva não pode cobrir o elemento em foco (WCAG 2.4.11). */
+@media (max-width: 767px) {
+  :global(html):has(.barraFixa) {
+    scroll-padding-bottom: 5.5rem;
+  }
+}
+
+@keyframes descer {
+  to {
+    transform: translateY(79.196px);
+  }
+}
+
+@keyframes andar {
+  to {
+    transform: translateX(79.196px);
+  }
+}
+
+/* Entrada da capa: o letreiro "acende" de baixo para cima, em sequência. */
+.sobe {
+  animation: subir 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--ordem, 0) * 80ms);
+}
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
+.seta {
+  transition: transform 200ms ease-out;
+}
+
+.linha:hover .seta,
+.linha:focus-visible .seta {
+  transform: translateX(6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gira::before,
+  .sobe {
+    animation: none !important;
+  }
+  .seta {
+    transition: none;
+  }
+}

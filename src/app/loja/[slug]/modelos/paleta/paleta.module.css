@@ -1,0 +1,193 @@
+/*
+ * Paleta — a cartela de tampas e o leque (DESIGN.md §3).
+ *
+ * Cada tampa é um <label> com um botão de opção dentro; o painel do serviço
+ * vem logo depois dela no HTML. O painel da tampa marcada aparece pelo seletor
+ * de irmão adjacente (`.tampa:has(:checked) + .painel`), sem JavaScript e sem
+ * regra por posição.
+ *
+ * Celular: as tampas são fichas que quebram linha e o painel vai para depois
+ * de todas (`order`), ocupando a linha inteira. Assim, trocar de tampa não
+ * mexe na posição de nenhuma tampa (antes, o painel aberto ficava entre elas e,
+ * ao fechar, a lista subia ~450 px sob o dedo). A partir do tablet, a grade põe
+ * a lista à esquerda e todos os painéis na coluna da direita.
+ */
+.cartela {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.painel {
+  display: none;
+}
+
+.tampa:has(:checked) + .painel {
+  display: block;
+}
+
+/* Navegador sem :has(): a cartela vira lista, com todos os painéis abertos. */
+@supports not selector(:has(a)) {
+  .painel {
+    display: block;
+  }
+}
+
+.grade {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.grade .tampa {
+  flex: 0 1 auto;
+  max-width: 100%;
+}
+
+.grade .painel {
+  order: 1;
+  flex-basis: 100%;
+}
+
+@media (min-width: 768px) {
+  .grade {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    /* Uma linha por tampa e uma última que estica: o painel ocupa todas. */
+    grid-template-rows: repeat(var(--linhas), auto) 1fr;
+    column-gap: clamp(2rem, 4vw, 3.5rem);
+    row-gap: 0.25rem;
+  }
+  .grade .tampa {
+    grid-column: 1;
+  }
+  .grade .painel {
+    order: 0;
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: start;
+    position: sticky;
+    top: 1.5rem;
+  }
+}
+
+.tampa {
+  transition: background-color 160ms ease-out;
+}
+
+.tampa .cor {
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.tampa:has(:checked) {
+  background: var(--l-superficie);
+}
+
+.tampa:has(:checked) .cor {
+  transform: scale(1.12);
+  outline: 2px solid var(--l-texto);
+  outline-offset: 3px;
+}
+
+/* O foco está no botão de opção (escondido); o anel aparece na tampa inteira. */
+.tampa:has(:focus-visible) {
+  outline: 2px solid var(--l-foco);
+  outline-offset: 2px;
+}
+
+/*
+ * O leque: a amostra escolhida na frente e as duas seguintes atrás, abertas
+ * para a direita. Abre de novo cada vez que o painel aparece (a animação
+ * reinicia quando o elemento sai de display: none).
+ */
+/* --giro e --passo: no celular o leque abre menos, para caber na largura. */
+.leque {
+  --giro: 4deg;
+  --passo: 4%;
+}
+
+@media (min-width: 1024px) {
+  .leque {
+    --giro: 5deg;
+    --passo: 5%;
+  }
+}
+
+.atras {
+  transform-origin: 30% 100%;
+  transform: rotate(calc(var(--n) * var(--giro))) translateX(calc(var(--n) * var(--passo)));
+  animation: abrir 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--n) * 60ms);
+}
+
+.frente {
+  transform: rotate(-2deg);
+  animation: assentar 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes abrir {
+  from {
+    transform: rotate(0deg) translateX(0);
+  }
+}
+
+@keyframes assentar {
+  from {
+    opacity: 0;
+    transform: rotate(0deg) translateY(16px);
+  }
+}
+
+.bolinha {
+  transition:
+    background-color 160ms ease-out,
+    color 160ms ease-out;
+}
+
+.bolinha:active {
+  transform: scale(0.96);
+}
+
+/* Efeitos de passar o mouse só onde existe mouse (no toque eles "grudam"). */
+@media (hover: hover) {
+  .tampa:not(:has(:checked)):hover {
+    background: color-mix(in srgb, var(--l-superficie) 60%, transparent);
+  }
+  .tampa:not(:has(:checked)):hover .cor {
+    transform: scale(1.06);
+  }
+  .leque:hover .atras {
+    transform: rotate(calc(var(--n) * var(--giro) * 1.25)) translateX(calc(var(--n) * var(--passo) * 1.25));
+    transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .bolinha:hover {
+    background: var(--cor);
+    color: var(--cor-texto);
+  }
+}
+
+.entra {
+  animation: subir 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--ordem, 0) * 80ms);
+}
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atras,
+  .frente,
+  .entra {
+    animation: none !important;
+  }
+  .tampa,
+  .tampa .cor,
+  .bolinha,
+  .leque:hover .atras {
+    transition: none !important;
+  }
+}

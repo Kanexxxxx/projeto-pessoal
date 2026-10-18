@@ -67,6 +67,25 @@ describe("caminhoInterno", () => {
     expect(caminhoInterno({ tipo: "plataforma" }, "/loja/loja-b")).toBe("/plataforma/loja/loja-b");
   });
 
+  it("só os ícones internos da MESMA área passam direto (links gerados pelo Next)", () => {
+    expect(caminhoInterno({ tipo: "loja", slug: "loja-a" }, "/loja/loja-a/icon")).toBe("/loja/loja-a/icon");
+    expect(caminhoInterno({ tipo: "loja", slug: "loja-a" }, "/loja/loja-a/apple-icon")).toBe("/loja/loja-a/apple-icon");
+    // Páginas internas não ganham um segundo endereço.
+    expect(caminhoInterno({ tipo: "loja", slug: "loja-a" }, "/loja/loja-a")).toBe("/loja/loja-a/loja/loja-a");
+    expect(caminhoInterno({ tipo: "loja", slug: "loja-a" }, "/loja/loja-a/agendar")).toBe("/loja/loja-a/loja/loja-a/agendar");
+    expect(caminhoInterno({ tipo: "painel" }, "/painel/entrar")).toBe("/painel/painel/entrar");
+    // Outra loja, ou prefixo parecido, continua prefixado (e cai em 404).
+    expect(caminhoInterno({ tipo: "loja", slug: "loja-a" }, "/loja/loja-b/icon")).toBe("/loja/loja-a/loja/loja-b/icon");
+    expect(caminhoInterno({ tipo: "loja", slug: "loja-a" }, "/loja/loja-a-icon")).toBe("/loja/loja-a/loja/loja-a-icon");
+    expect(caminhoInterno({ tipo: "loja", slug: "loja-a" }, "/loja/loja-a/iconx")).toBe("/loja/loja-a/loja/loja-a/iconx");
+  });
+
+  it("o ícone da plataforma, na raiz, vale para a plataforma e o painel", () => {
+    expect(caminhoInterno({ tipo: "painel" }, "/icon.svg")).toBe("/icon.svg");
+    expect(caminhoInterno({ tipo: "plataforma" }, "/icon.svg")).toBe("/icon.svg");
+    expect(caminhoInterno({ tipo: "loja", slug: "loja-a" }, "/icon.svg")).toBe("/loja/loja-a/icon.svg");
+  });
+
   it("só o painel atende /api", () => {
     expect(caminhoInterno({ tipo: "painel" }, "/api/auth/get-session")).toBe("/api/auth/get-session");
     expect(caminhoInterno({ tipo: "loja", slug: "loja-a" }, "/api/auth/get-session")).toBe("/loja/loja-a/api/auth/get-session");

@@ -1,6 +1,6 @@
 # Nexakeep
 
-Plataforma de sites, agendamentos e CRM para pequenos negócios. A fundação local de acesso do operador está implementada e em revisão (T05); lojas, agenda e CRM ainda serão construídos.
+Plataforma de sites, agendamentos e CRM para pequenos negócios. Rodam localmente: o acesso do operador com 2FA (T05), as lojas isoladas com painel e agenda (T06) e o site de cada loja com agendamento pelo celular, em três modelos visuais (T08). O CRM (T07) e o WhatsApp automático ainda serão construídos.
 
 **Retomada por Codex/Claude:** leia [docs/CONTINUIDADE.md](docs/CONTINUIDADE.md) e os checkpoints em [docs/execucao/](docs/execucao/). Atualize o progresso durante a execução. Não reinicie o inventário da T01 nem considere pronta uma etapa sem validar seus critérios.
 
@@ -44,8 +44,11 @@ Com o operador criado, gere duas lojas fictícias de demonstração (rodar de no
 npm run demo:criar
 ```
 
-- <http://navalha-de-ouro.localhost:3000> — barbearia, modelo "Contraste"
-- <http://studio-bella.localhost:3000> — estúdio de unhas, modelo "Clássico"
+- <http://navalha-de-ouro.localhost:3000> — barbearia, modelo **Letreiro**
+- <http://salao-jasmim.localhost:3000> — salão, modelo **Revista**
+- <http://studio-bella.localhost:3000> — estúdio de unhas, modelo **Paleta**
+
+Qualquer loja pode ser vista em outro modelo com `?modelo=letreiro`, `?modelo=revista` ou `?modelo=paleta` (é a prévia que a dona abre na aba Site). A direção visual, os tokens e as regras de cada modelo estão em [DESIGN.md](DESIGN.md).
 
 No painel, o operador vê todas as lojas e cria novas em "+ Nova loja". Em cada loja: **Agenda** (dia a dia, criar, remarcar, cancelar, atendido/faltou), **Serviços**, **Profissionais e horários**, **Folgas e bloqueios**, **Site** (modelo, cor, textos, WhatsApp e regras da agenda online) e **Acessos** (convidar a dona e a equipe). Para entrar como dona, convide um e-mail fictício em Acessos e abra o convite numa janela anônima. A dona não precisa de 2FA, mas pode ativar em Segurança; a equipe só vê a agenda.
 
@@ -63,6 +66,14 @@ npm run build
 ```
 
 `verificar` executa lint, tipos, testes unitários/integração e varredura dos arquivos de trabalho (incluindo novos). Os testes de integração criam PostgreSQL descartável com credenciais aleatórias; aplicam as migrações do zero e verificam permissões e o isolamento entre lojas. `test:e2e` usa o Edge do sistema contra um `next dev` próprio (porta 3100) e um banco recriado a cada execução: ciclo do operador com 2FA e ciclo da loja (dona, agenda, cliente agendando pelo site, isolamento).
+
+Para conferir os sites das lojas (com o `npm run dev` no ar):
+
+```powershell
+node scripts/inspecionar-sites.mjs --base http://localhost:3000 --lojas navalha-de-ouro,salao-jasmim,studio-bella --saida test-results/inspecao --lint
+```
+
+Abre cada loja no Edge em 1440, 834 e 390 px, salva capturas e mede rolagem lateral, títulos com mais de duas linhas, contraste de cada texto, alvos de toque, foco no teclado (com e sem foco), "reduzir movimento", erros de console, texto cortado por `overflow` (inclusive acento), texto coberto por outra camada, Didone abaixo de 28 px e faixa de horário quebrada em duas linhas; com `--lint`, procura padrões proibidos no código dos modelos (DESIGN.md §0). `--modelo letreiro|revista|paleta` abre a página inicial nesse modelo (use com a loja `teste-limites` do banco local, que tem nome de 54 caracteres e 12 serviços).
 
 O E2E usa Microsoft Edge instalado, porta 3100, pasta `.next-e2e` e recria apenas o banco `nexakeep_e2e` no cluster local. Exercita convite, MFA, sessão e redefinição de senha. Não armazene dados manuais nesse banco. Os resultados e traces ficam fora do Git; podem conter dados fictícios e tokens de teste.
 
