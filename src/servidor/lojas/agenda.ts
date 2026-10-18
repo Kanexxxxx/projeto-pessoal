@@ -171,6 +171,42 @@ export type HorariosVitrine = {
  * só e com a mesma conta da reserva: o que aparece aqui é o que o cliente
  * consegue agendar. Olha no máximo `diasMax` dias à frente.
  */
+/**
+ * "Horário primeiro" (agenda do site): para um dia e hora, quais serviços cabem e com quais profissionais.
+ * Usa a mesma grade da reserva; serviço que não aparece aqui não cabe naquele horário (duração, expediente,
+ * ocupação ou antecedência) e não deve ser oferecido com aquele horário.
+ */
+export async function livresNoHorario(db: Kysely<BD>, loja: Loja, p: { data: string; hora: string; agora?: Date }): Promise<Map<string, string[]>> {
+  const livres = new Map<string, string[]>();
+  if (!lojaAceitaReservas(loja) || !dataCanonica(p.data) || minutosDeHora(p.hora) === null) return livres;
+  const agora = p.agora ?? new Date();
+  return comLoja(db, loja.id, async (trx) => {
+    const regras = regrasDa(loja, await lerConfig(trx));
+    if (p.data > ultimoDiaAceito(agora, regras)) return livres;
+    const servicos = await trx.selectFrom("servicos").select(["id", "duracao_min"]).where("ativo", "=", true).execute();
+    const vinculos = await trx
+      .selectFrom("servicos_profissionais")
+      .innerJoin("profissionais", (j) =>
+        j.onRef("profissionais.id", "=", "servicos_profissionais.profissional_id").onRef("profissionais.tenant_id", "=", "servicos_profissionais.tenant_id"),
+      )
+      .select(["servicos_profissionais.servico_id", "profissionais.id as profissionalId"])
+      .where("profissionais.ativo", "=", true)
+      .execute();
+    const expedientes = await lerExpedientes(trx);
+    const ocupacao = await ocupacoes(trx, agora, instanteNoFuso(somarDias(p.data, 1), 0, regras.fuso) ?? agora);
+    for (const s of servicos) {
+      const quem = vinculos
+        .filter((v) => v.servico_id === s.id)
+        .map((v) => v.profissionalId)
+        .filter((profissionalId) =>
+          gradeDoProfissional({ profissionalId, data: p.data, regras, expedientes, duracaoMin: s.duracao_min, ocupacao, agora }).some((v) => v.rotulo === p.hora && v.livre),
+        );
+      if (quem.length) livres.set(s.id, quem);
+    }
+    return livres;
+  });
+}
+
 export async function horariosDaVitrine(
   db: Kysely<BD>,
   loja: Loja,

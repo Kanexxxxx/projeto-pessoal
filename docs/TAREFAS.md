@@ -2,7 +2,7 @@
 
 Data-base: 15/10/2026. Objetivo de revisão: 22/10/2026, no horário de São Paulo. A ordem depende de entregas, não de uma tarefa obrigatória por dia. É possível concluir duas tarefas no mesmo dia; não marcar pronta uma etapa só porque terminou o dia.
 
-**Estado em 17/10/2026:** T01, T03, T05 e T06 concluídas · T08 com o núcleo pronto (falta galeria de fotos) · T04 em andamento: três modelos novos (Letreiro, Revista, Paleta; [DESIGN.md](../DESIGN.md)) em avaliação independente, fotos pendentes · T02 preparada, aguardando aceite comercial · T14 decidida pelo titular em 17/10: modelo DigAÍ, com o número da própria loja ([WHATSAPP.md](WHATSAPP.md)) · foco atual: sites das lojas; depois, T09 ou fotos · demais pendentes. Estado de execução e próxima ação em [CONTINUIDADE.md](CONTINUIDADE.md), com checkpoints por frente em `docs/execucao/`.
+**Estado em 18/10/2026:** T01, T03, T05 e T06 concluídas · T08 com o núcleo pronto (falta galeria de fotos) · T04: três modelos novos (Letreiro, Revista, Paleta; [DESIGN.md](../DESIGN.md)) aprovados na avaliação independente em 18/10, fotos pendentes · T02 preparada, aguardando aceite comercial · T14 decidida pelo titular em 17/10: modelo DigAÍ, com o número da própria loja ([WHATSAPP.md](WHATSAPP.md)) · sites das lojas concluídos; próxima: fotos, T09 ou WhatsApp, a escolher pelo titular · demais pendentes. Estado de execução e próxima ação em [CONTINUIDADE.md](CONTINUIDADE.md), com checkpoints por frente em `docs/execucao/`.
 
 ## 1. Regras de execução
 

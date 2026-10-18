@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { sql } from "kysely";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { aceitarConvite, aceitarConviteComConta, criarConvite } from "../../src/servidor/auth/convites";
-import { agendaDoDia, cancelarAgendamento, criarBloqueio, disponibilidade, horariosDaVitrine, remarcarAgendamento, reservar } from "../../src/servidor/lojas/agenda";
+import { agendaDoDia, cancelarAgendamento, criarBloqueio, disponibilidade, horariosDaVitrine, livresNoHorario, remarcarAgendamento, reservar } from "../../src/servidor/lojas/agenda";
 import { salvarExpediente, salvarProfissional, salvarServico, salvarSite } from "../../src/servidor/lojas/catalogo";
 import { comLoja } from "../../src/servidor/lojas/escopo";
 import { convidarParaLoja, revogarAcesso } from "../../src/servidor/lojas/equipe";
@@ -336,5 +336,22 @@ describe("agenda", () => {
     // O primeiro horário da vitrine é aceito pela reserva.
     const primeiro = depois.porServico.get(L.servicoId)![0]!;
     expect((await reservar(c.db, pedido(L.loja, L.servicoId, { data: primeiro.data, hora: primeiro.hora, telefone: "(20) 96666-0003" }))).ok).toBe(true);
+  });
+
+  it("horário primeiro: só oferece serviço e profissional que cabem no horário, igual à reserva", async () => {
+    const L = await lojaPronta("Horário primeiro");
+    // 11:00 de quarta: os dois profissionais estão livres.
+    const antes = await livresNoHorario(c.db, L.loja, { data: "2026-03-04", hora: "11:00", agora: AGORA });
+    expect([...(antes.get(L.servicoId) ?? [])].sort()).toEqual(L.profs.map((p) => p.id).sort());
+    // Ocupado um profissional às 11:00, ele sai da lista; o outro continua e a reserva com ele é aceita.
+    const ocupado = L.profs[0]!.id;
+    const livre = L.profs[1]!.id;
+    expect((await reservar(c.db, { ...pedido(L.loja, L.servicoId, { data: "2026-03-04", hora: "11:00", telefone: "(20) 96666-0011" }), profissionalId: ocupado })).ok).toBe(true);
+    const depois = await livresNoHorario(c.db, L.loja, { data: "2026-03-04", hora: "11:00", agora: AGORA });
+    expect(depois.get(L.servicoId)).toEqual([livre]);
+    expect((await reservar(c.db, { ...pedido(L.loja, L.servicoId, { data: "2026-03-04", hora: "11:00", telefone: "(20) 96666-0012" }), profissionalId: livre })).ok).toBe(true);
+    // Com os dois ocupados, o serviço não cabe mais às 11:00; antes da antecedência mínima, também não.
+    expect((await livresNoHorario(c.db, L.loja, { data: "2026-03-04", hora: "11:00", agora: AGORA })).has(L.servicoId)).toBe(false);
+    expect((await livresNoHorario(c.db, L.loja, { data: "2026-03-04", hora: "09:30", agora: AGORA })).size).toBe(0);
   });
 });

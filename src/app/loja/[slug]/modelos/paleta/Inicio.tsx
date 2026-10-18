@@ -122,7 +122,7 @@ function Cartela({ v, cores }: { v: Vitrine; cores: Amostra[] }) {
                 <input type="radio" name="cartela" value={s.id} defaultChecked={i === 0} className="sr-only" />
                 <span aria-hidden className={`${css.cor} size-9 shrink-0 rounded-full md:size-10`} style={{ background: cores[i]!.fundo }} />
                 <span className="min-w-0 flex-1 text-[16px] leading-tight font-semibold hyphens-auto md:text-[17px]">{s.nome}</span>
-                <span className="hidden shrink-0 text-[16px] text-(--l-suave) tabular-nums md:inline">{s.preco}</span>
+                <span className="shrink-0 text-[14px] text-(--l-suave) tabular-nums md:text-[16px]">{s.preco}</span>
               </label>
               <Painel
                 s={s}
@@ -209,18 +209,16 @@ function QuemAtendeEQuando({ v, cores }: { v: Vitrine; cores: Amostra[] }) {
             <span aria-hidden className={`size-3 shrink-0 rounded-full ${v.agora.aberto ? "bg-(--marca)" : "bg-(--l-suave)"}`} />
             {v.agora.texto}
           </p>
-          {/* A semana em tampas: dia aberto = tampa cheia na cor da cartela; fechado = só o contorno. */}
+          {/* A semana em tampas: dia aberto = tampa cheia na cor da loja; fechado = só o contorno. */}
           <ul aria-label="Horário da semana" className="mt-6 grid grid-cols-4 gap-x-3 gap-y-6 sm:grid-cols-7">
-            {v.semana.map((d, i) => {
-              const cor = cores[i % cores.length]!;
+            {v.semana.map((d) => {
               return (
                 <li key={d.dia} className="flex flex-col items-center gap-2 text-center">
                   <span
                     aria-hidden
                     className={`${TITULO} flex size-14 items-center justify-center rounded-full text-[1.0625rem] md:size-16 ${d.hoje ? "outline-2 outline-offset-3 outline-(--l-texto)" : ""} ${
-                      d.aberto ? "" : "text-(--l-suave) ring-2 ring-(--l-suave)/50 ring-inset"
+                      d.aberto ? "bg-(--marca) text-(--marca-texto)" : "text-(--l-suave) ring-2 ring-(--l-suave)/50 ring-inset"
                     }`}
-                    style={d.aberto ? { background: cor.fundo, color: cor.texto } : undefined}
                   >
                     {d.curto}
                   </span>

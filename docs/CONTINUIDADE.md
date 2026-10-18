@@ -4,9 +4,16 @@ Este repositório é só da **Nexakeep** (sites e agendamento para lojas). O pro
 
 ## Estado atual
 
-Atualizado em 17/10/2026, 20h30, pelo Claude Code. **Leia primeiro o checkpoint abaixo; os registros de 15/10 são históricos.**
+Atualizado em 18/10/2026, 14h40, pelo Claude Code. **Leia primeiro o checkpoint abaixo; os registros de 15/10 são históricos.**
 
-### Checkpoint de retomada — 17/10/2026, 20h30
+### Checkpoint de retomada — 18/10/2026, 14h40
+
+- **Resultado (18/10):** **os três modelos passaram** na avaliação independente, com nota ≥ 8 em todos os critérios: Letreiro 8,4, Revista 8,25, Paleta 8,2 (rodada 1: 7,2 / 6,5 / 6,2). Na rodada 3, Revista e Paleta tinham parado cada uma num defeito de correção pequena, corrigido e confirmado pelo avaliador (230 percursos do "horário primeiro" chegando a "Seus dados"; preços visíveis no celular): o "horário primeiro" oferecia serviço e pessoa que não cabiam no horário (agora só oferece o que cabe, por `livresNoHorario`, com teste de integração contra a reserva) e o preço tinha sumido das fichas da Paleta no celular. Polimento também aplicado. Detalhes em [execucao/SITES-DESIGN.md](execucao/SITES-DESIGN.md).
+- **Validação depois das correções:** inspeção 0 falha (4 lojas × início e agendamento × 3 larguras × reduzir movimento; `teste-limites` nos 3 modelos), agora também percorrendo o "horário primeiro" (mutação conferida); `npm run verificar` 129 testes; `npm run test:e2e` 2/2.
+- **Separação de projetos (18/10, outra sessão):** o histórico do projeto de afiliados saiu desta pasta (nota no topo deste arquivo), e o trabalho dos três modelos foi enviado ao GitHub no commit `d6f919b`.
+- **Próxima ação exata:** a próxima tarefa que o titular escolher — fotos das lojas (os três modelos já reservam o lugar), T09 (exclusão a pedido do cliente) ou o módulo de WhatsApp no modelo DigAÍ. Polimento aberto dos sites (não impede a entrega) no checkpoint dos sites.
+
+### Checkpoint anterior — 17/10/2026, 20h30
 
 - **Foco único do titular (17/10):** os sites das lojas. Os modelos "Clássico" e "Contraste" foram reprovados por ele ("genéricos"). Uma coisa por vez, até ficar bom; depois a próxima tarefa. Detalhes e histórico no checkpoint [execucao/SITES-DESIGN.md](execucao/SITES-DESIGN.md).
 - **Feito:** três modelos novos, cada um com arquitetura própria — **Letreiro** (barbearia: a parede com o quadro de preços e a placa ABERTO/FECHADO), **Revista** (salão: ordem de revista, com a agenda como página 2) e **Paleta** (estúdio: a cartela de tampas é a capa, sem JavaScript). Sistema de design em [../DESIGN.md](../DESIGN.md). Migração `0006_modelos_site.sql`; vitrine com horários reais (`horariosDaVitrine`: por serviço, por profissional e por dia); agendamento com aviso de horário que saiu da agenda; juiz objetivo `scripts/inspecionar-sites.mjs` com teste de mutação.

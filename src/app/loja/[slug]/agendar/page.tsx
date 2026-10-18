@@ -3,7 +3,7 @@ import { formatarPreco } from "@/dominio/contato";
 import { dataCanonica, dataPorExtenso, diaDaSemana, minutosDeHora, nomeDoDia } from "@/dominio/datas";
 import { duracaoLegivel } from "@/dominio/funcionamento";
 import { contexto } from "@/servidor/acesso";
-import { disponibilidade, lojaAceitaReservas } from "@/servidor/lojas/agenda";
+import { disponibilidade, livresNoHorario, lojaAceitaReservas } from "@/servidor/lojas/agenda";
 import { UUID } from "@/servidor/lojas/escopo";
 import { Casca } from "../Casca";
 import { siteDaLoja } from "../dados";
@@ -84,6 +84,9 @@ export default async function PaginaAgendar({ params, searchParams }: { params: 
   const pedido = horaPedida ? { data: dataPedida!, hora: horaPedida } : {};
   // O link trazia um horário que não está livre (saiu da agenda, ou não serve para este serviço): avisar em vez de sumir calado.
   const horaSumiu = Boolean(servico && prof && horaPedida && !vaga);
+  // Com horário pedido, só se oferece serviço e pessoa que cabem nele (o resto vai para "outro horário").
+  const cabem = horaPedida && (!servico || !prof) ? await livresNoHorario(contexto().db, loja, { data: dataPedida!, hora: horaPedida }) : null;
+  const quandoPedido = horaPedida ? `às ${horaPedida}` : "";
   const aceita = lojaAceitaReservas(loja);
   const nomeProfissional = profissional?.nome ?? (prof === "qualquer" ? "Sem preferência" : undefined);
 
@@ -104,19 +107,48 @@ export default async function PaginaAgendar({ params, searchParams }: { params: 
             ) : (
               <Etapa titulo="Qual serviço?">
                 {servicos.length ? (
-                  <ul className="flex flex-col gap-2">
-                    {servicos.map((s) => (
-                      <li key={s.id}>
-                        <a href={link({ servico: s.id, ...pedido })} className={OPCAO}>
-                          <span>
-                            <span className="block font-medium">{s.nome}</span>
-                            <span className="block text-sm text-(--l-suave)">{duracaoLegivel(s.duracaoMin)}</span>
-                          </span>
-                          <span className="font-medium tabular-nums">{formatarPreco(s.precoCentavos)}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+                  <>
+                    {cabem && !servicos.some((s) => cabem.has(s.id)) ? (
+                      <p role="status" className="rounded-(--raio-bloco) bg-(--l-superficie) px-4 py-3 font-medium">
+                        O horário {quandoPedido} de {dataPorExtenso(dataPedida!)} acabou de sair da agenda. Escolha o serviço para ver outros horários.
+                      </p>
+                    ) : null}
+                    <ul className="flex flex-col gap-2">
+                      {servicos
+                        .filter((s) => !cabem || cabem.has(s.id))
+                        .map((s) => (
+                          <li key={s.id}>
+                            <a href={link({ servico: s.id, ...pedido })} className={OPCAO}>
+                              <span>
+                                <span className="block font-medium">{s.nome}</span>
+                                <span className="block text-sm text-(--l-suave)">{duracaoLegivel(s.duracaoMin)}</span>
+                              </span>
+                              <span className="font-medium tabular-nums">{formatarPreco(s.precoCentavos)}</span>
+                            </a>
+                          </li>
+                        ))}
+                    </ul>
+                    {cabem && servicos.some((s) => !cabem.has(s.id)) ? (
+                      <div className="mt-2 flex flex-col gap-2">
+                        {servicos.some((s) => cabem.has(s.id)) ? <p className="text-sm text-(--l-suave)">Estes não cabem {quandoPedido}; escolha e veja outros horários:</p> : null}
+                        <ul className="flex flex-col gap-2">
+                          {servicos
+                            .filter((s) => !cabem.has(s.id))
+                            .map((s) => (
+                              <li key={s.id}>
+                                <a href={link({ servico: s.id })} className={OPCAO}>
+                                  <span>
+                                    <span className="block font-medium">{s.nome}</span>
+                                    <span className="block text-sm text-(--l-suave)">{duracaoLegivel(s.duracaoMin)} · outro horário</span>
+                                  </span>
+                                  <span className="font-medium tabular-nums">{formatarPreco(s.precoCentavos)}</span>
+                                </a>
+                              </li>
+                            ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </>
                 ) : (
                   <p className="text-(--l-suave)">A loja ainda não cadastrou serviços.</p>
                 )}
@@ -129,19 +161,29 @@ export default async function PaginaAgendar({ params, searchParams }: { params: 
               ) : (
                 <Etapa titulo="Com quem?">
                   <ul className="flex flex-col gap-2">
-                    <li>
-                      <a href={link({ servico: servico.id, prof: "qualquer", ...pedido })} className={OPCAO}>
-                        <span className="font-medium">Sem preferência</span>
-                        <span className="text-sm text-(--l-suave)">mais horários</span>
-                      </a>
-                    </li>
-                    {doServico.map((p) => (
-                      <li key={p.id}>
-                        <a href={link({ servico: servico.id, prof: p.id, ...pedido })} className={OPCAO}>
-                          <span className="font-medium">{p.nome}</span>
-                        </a>
-                      </li>
-                    ))}
+                    {(() => {
+                      // Com horário pedido: quem está livre nele leva o horário junto; quem não está vai para "outro horário".
+                      const livresAgora = cabem ? (cabem.get(servico.id) ?? []) : null;
+                      const comHorario = (id: string) => !livresAgora || livresAgora.includes(id);
+                      return (
+                        <>
+                          <li>
+                            <a href={link({ servico: servico.id, prof: "qualquer", ...(livresAgora && !livresAgora.length ? {} : pedido) })} className={OPCAO}>
+                              <span className="font-medium">Sem preferência</span>
+                              <span className="text-sm text-(--l-suave)">{livresAgora && !livresAgora.length ? `sem vaga ${quandoPedido}` : "mais horários"}</span>
+                            </a>
+                          </li>
+                          {doServico.map((p) => (
+                            <li key={p.id}>
+                              <a href={link({ servico: servico.id, prof: p.id, ...(comHorario(p.id) ? pedido : {}) })} className={OPCAO}>
+                                <span className="font-medium">{p.nome}</span>
+                                {comHorario(p.id) ? null : <span className="text-sm text-(--l-suave)">sem vaga {quandoPedido} · outro horário</span>}
+                              </a>
+                            </li>
+                          ))}
+                        </>
+                      );
+                    })()}
                   </ul>
                 </Etapa>
               )
@@ -154,7 +196,7 @@ export default async function PaginaAgendar({ params, searchParams }: { params: 
                 <Etapa titulo="Quando?">
                   {horaSumiu ? (
                     <p role="status" className="rounded-(--raio-bloco) bg-(--l-superficie) px-4 py-3 font-medium">
-                      O horário das {horaPedida} de {dataPorExtenso(dataPedida!)} não está mais livre para {servico!.nome.toLowerCase()}. Escolha outro abaixo.
+                      O horário das {horaPedida} de {dataPorExtenso(dataPedida!)} não está livre para {servico!.nome.toLowerCase()}. Escolha outro abaixo.
                     </p>
                   ) : null}
                   {!disp || !primeiroDiaLivre ? (

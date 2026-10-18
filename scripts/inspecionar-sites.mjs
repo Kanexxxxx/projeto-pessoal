@@ -340,6 +340,51 @@ async function textoCoberto(page) {
 }
 
 /**
+ * "Horário primeiro": abre o primeiro link da página inicial que leva só dia e
+ * hora ao agendamento e segue cada serviço oferecido com aquele horário e cada
+ * pessoa oferecida com ele. Todos têm de chegar a "Seus dados" sem aviso:
+ * oferecer o que não cabe no horário é defeito (rodada 3 da Revista).
+ */
+async function horarioPrimeiro(page, slug) {
+  const problemas = [];
+  const inicio = await page.evaluate(() =>
+    [...document.querySelectorAll("a[href*='/agendar?']")].map((a) => a.getAttribute("href")).find((h) => /[?&]hora=/.test(h) && !/[?&]servico=/.test(h)),
+  );
+  if (!inicio) return problemas;
+  const abrir = (href) => page.goto(urlDaLoja(slug, href), { waitUntil: "networkidle" });
+  const linksComHora = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll("main a[href*='/agendar?']")]
+        .map((a) => ({ href: a.getAttribute("href"), texto: a.innerText.split("\n")[0].trim() }))
+        .filter((l) => /[?&]hora=/.test(l.href)),
+    );
+  const chegou = () =>
+    page.evaluate(() => ({
+      dados: [...document.querySelectorAll("h2")].some((h) => h.textContent.trim() === "Seus dados"),
+      aviso: document.querySelector("[role=status]")?.textContent?.trim() ?? null,
+    }));
+  await abrir(inicio);
+  const servicos = (await linksComHora()).filter((l) => /[?&]servico=/.test(l.href) && !/[?&]prof=/.test(l.href));
+  if (!servicos.length) problemas.push(`nenhum serviço oferecido em ${inicio}`);
+  for (const sv of servicos) {
+    await abrir(sv.href);
+    let estado = await chegou();
+    if (estado.dados && !estado.aviso) continue;
+    const pessoas = (await linksComHora()).filter((l) => /[?&]prof=/.test(l.href));
+    if (!pessoas.length) {
+      problemas.push(`${sv.texto}: ${estado.aviso ?? "não chega a “Seus dados”"}`);
+      continue;
+    }
+    for (const p of pessoas) {
+      await abrir(p.href);
+      estado = await chegou();
+      if (!estado.dados || estado.aviso) problemas.push(`${sv.texto} com ${p.texto}: ${estado.aviso ?? "não chega a “Seus dados”"}`);
+    }
+  }
+  return problemas;
+}
+
+/**
  * Toca nas duas últimas opções de cada grupo de botões de opção com <label>
  * (cartela da Paleta) e mede quanto a opção tocada se moveu na tela. Mais de
  * 100 px = a página "pulou" sob o dedo (ex.: painel que fecha acima dela).
@@ -477,6 +522,11 @@ try {
             }
             const saltos = await saltoAoEscolher(page);
             if (saltos.length) item.falhas.push(`a opção tocada pulou na tela: ${saltos.join(", ")}`);
+            // Por último (sai da página): o caminho "horário primeiro", uma vez por loja.
+            if (caminho === "/" && tela.nome === "desktop") {
+              const caminhoRuim = await horarioPrimeiro(page, slug);
+              if (caminhoRuim.length) item.falhas.push(`horário primeiro oferece o que não cabe: ${caminhoRuim.slice(0, 4).join(" | ")}`);
+            }
           }
           if (consoleErros.length) item.falhas.push(...consoleErros.map((e) => `console: ${e}`));
           relatorio.paginas.push(item);

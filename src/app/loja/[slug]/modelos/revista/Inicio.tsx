@@ -52,7 +52,7 @@ function Capa({ v }: { v: Vitrine }) {
         </nav>
       </div>
 
-      <div className={`${CONTEUDO} flex flex-1 flex-col justify-center pt-10 pb-12 md:py-16 lg:justify-end lg:pb-14`}>
+      <div className={`${CONTEUDO} flex flex-1 flex-col justify-center pt-10 pb-12 md:py-16 lg:justify-start lg:pt-12`}>
         <h1 className={`${DIDONE} ${TAMANHO_DO_TITULO[faixa]} leading-[0.92] font-medium tracking-[-0.025em] text-balance ${faixa === "muitoLongo" ? "" : "uppercase"}`}>
           {/* Cada palavra sobe sozinha; o espaço fica FORA da caixa animada (dentro, ele some). */}
           {v.loja.nome.split(" ").map((palavra, i) => (
@@ -94,7 +94,7 @@ function Capa({ v }: { v: Vitrine }) {
                         {d.dia}, {d.hora}
                       </span>
                       {destaque.every((x) => x.todos) ? null : (
-                        <span className="truncate text-[15px] text-(--l-suave)">{d.todos ? "qualquer serviço" : `${d.servicos.length} de ${v.servicos.length} serviços`}</span>
+                        <span className="truncate text-[15px] text-(--l-suave)">{d.todos ? "qualquer serviço" : `para ${d.servicos.length} dos ${v.servicos.length} serviços`}</span>
                       )}
                     </a>
                   </li>
@@ -140,7 +140,7 @@ function Agenda({ v }: { v: Vitrine }) {
               <p className="mt-2 text-[16px] text-(--l-suave)">
                 {d.livres} {d.livres === 1 ? "horário livre" : "horários livres"}
               </p>
-              <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1">
+              <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-1 md:grid-cols-1 lg:grid-cols-2">
                 {d.horas.map((h) => (
                   <li key={h.hora} className="min-w-0">
                     <a href={h.href} className={`group flex min-h-12 flex-col justify-center ${FOCO}`}>
@@ -150,7 +150,7 @@ function Agenda({ v }: { v: Vitrine }) {
                       </span>
                       {tudoLivre || h.todos ? null : (
                         <span className="text-[15px] text-(--l-suave)">
-                          {h.servicos.length} de {v.servicos.length} serviços
+                          para {h.servicos.length} dos {v.servicos.length} serviços
                         </span>
                       )}
                     </a>

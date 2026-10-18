@@ -80,6 +80,44 @@ Observação: ao formatar um arquivo, `npx prettier` baixou o Prettier para o ca
 
 Verificação da rodada 3: inspeção com 0 falha nas 4 lojas × início e agendamento × 3 larguras × reduzir movimento e na `teste-limites` nos 3 modelos. Avisos restantes, aceitos por serem dado real: "4 de 6 serviços" às 18:00 em todos os dias úteis da Revista (todos fecham na mesma hora); "16 horários livres" nos dois dias da `teste-limites`; título de 3 linhas da Revista com 54 caracteres no celular. `npm run verificar`: 128 testes, lint, tipos e varredura ok. `npm run test:e2e`: 2/2.
 
+## Avaliação independente — rodada 3 (18/10, 09h–09h50)
+
+A sessão de avaliação parou no limite de uso na noite de 17/10 e foi retomada em 18/10. Antes disso, outra sessão separou o projeto de afiliados (Vitraya) desta pasta e enviou este trabalho ao GitHub (commit `d6f919b`); o código avaliado é o mesmo.
+
+**Letreiro passa (8,4).** Revista 7,9 e Paleta 8,1 não passam, cada uma por **um** defeito de correção pequena (não de desenho):
+
+- **Revista:** o "horário primeiro" oferecia serviços e pessoas que não cabiam no horário (às 09:00 de terça, Coloração, Mechas, e Corte com Bianca ou Tati) e respondia "não está mais livre", texto falso, porque o horário nunca esteve livre para eles.
+- **Paleta:** o preço sumiu das fichas do celular (`hidden md:inline`).
+
+O avaliador considerou legítima a agenda de exemplo da demonstração: o script recusa produção, os dados são fictícios e marcados, e o desenho não depende deles; foram esses dados que revelaram o defeito da Revista.
+
+## Correção dos bloqueios (18/10, 09h50–10h30)
+
+- `livresNoHorario` (agenda.ts): para um dia e hora, os serviços que cabem e com quem, pela mesma grade da reserva. Teste de integração contra `reservar` (livre com os dois → um ocupado sai da lista e a reserva com o outro é aceita → nenhum livre → antes da antecedência, nenhum).
+- Agendamento: com horário pedido, só oferece o que cabe; o resto vai para "outro horário" sem levar o horário; em "Com quem?", "sem vaga às 09:00 · outro horário"; aviso sem "mais".
+- Paleta: preço sempre visível nas fichas (14 px no celular).
+- Polimento: semana da Paleta numa cor só (a da loja); Revista com o título no topo da capa no computador, horários em uma coluna no tablet e "para 4 dos 6 serviços".
+- Juiz: percorre o "horário primeiro" (cada serviço e cada pessoa oferecidos com o horário têm de chegar a "Seus dados"). Mutação: com o filtro desligado, acusou Corte com Bianca e Tati e Coloração.
+
+Verificação: inspeção com 0 falha (4 lojas × início e agendamento × 3 larguras × reduzir movimento; `teste-limites` nos 3 modelos); `npm run verificar` 129 testes; `npm run test:e2e` 2/2.
+
+## Confirmação dos bloqueios e resultado final (18/10, 14h50)
+
+O avaliador conferiu só os dois bloqueios, ao vivo em 390 px:
+
+- **Revista:** seguiu os 12 horários da capa e da agenda (20 a 22/10), cada serviço e cada pessoa oferecidos com o horário, inclusive "Sem preferência": **230 percursos chegaram a "Seus dados", nenhum falhou**. Os serviços que não cabem e as pessoas sem vaga aparecem como "outro horário", sem levar o horário; o aviso diz "não está livre para …".
+- **Paleta:** em 390 px, sem tocar em nada, os 4 preços aparecem (e os 12 na `teste-limites`, inclusive "Sob consulta").
+
+| Modelo | Rodada 1 | Rodada 2 | Rodada 3 | Depois dos bloqueios | Veredito |
+|---|---|---|---|---|---|
+| Letreiro | 7,2 | 8,2 | 8,4 | 8,4 | **passa** |
+| Revista | 6,5 | 7,7 | 7,9 | 8,25 | **passa** |
+| Paleta | 6,2 | 7,9 | 8,1 | 8,2 | **passa** |
+
+Os três com nota ≥ 8 em todos os critérios. A decisão final é do titular.
+
+Polimento que fica aberto, sem impedir a entrega: na Paleta com muitos serviços (12), o painel abre abaixo da dobra no celular depois do toque; no Letreiro, conferir ao vivo o poste girando com a loja aberta (só foi avaliado pelo código, porque as lojas estavam fechadas nas avaliações).
+
 ## Próxima ação
 
-Avaliação independente da rodada 3 (mesmo avaliador, mesmas lojas e larguras). Depois: registrar as notas aqui e em CONTINUIDADE.md, commit (sem os arquivos de outras sessões) e envio ao GitHub, e o relatório ao titular. Com o limite de 3 rodadas atingido, o que ainda não passar vai para a decisão do titular, com a lista do avaliador.
+Concluído. Próxima tarefa a escolher pelo titular: fotos das lojas (os três modelos já reservam o lugar), T09 (exclusão a pedido do cliente) ou o módulo de WhatsApp no modelo DigAÍ. Depois: registrar as notas aqui e em CONTINUIDADE.md, commit (sem os arquivos de outras sessões) e envio ao GitHub, e o relatório ao titular. Com o limite de 3 rodadas atingido, o que ainda não passar vai para a decisão do titular, com a lista do avaliador.
