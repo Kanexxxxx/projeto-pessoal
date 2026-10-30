@@ -1,5 +1,13 @@
 # Nexakeep — planejamento do produto
 
+## Qual versão abrir
+
+Este ramo `main` preserva o planejamento inicial. A aplicação está em
+[`implementacao`](https://github.com/Kanexxxxx/projeto-pessoal/tree/implementacao).
+Para continuar o desenvolvimento, consulte nessa branch o README e
+`docs/ORGANIZACAO.md` e `docs/CONTINUIDADE.md`. Não execute as tarefas abaixo
+como se a implementação ainda não existisse: elas são o registro do planejamento.
+
 Plataforma em planejamento para sites de pequenos negócios, agendamentos e CRM interno.
 
 - **Nome provisório:** Nexakeep.
